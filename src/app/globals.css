@@ -1,26 +1,78 @@
 @import "tailwindcss";
 
+/*
+ * Premium 3D Fintech Office — design tokens.
+ * Dark navy base, slate panels, cyan accent, semantic bull/bear/warn colors.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #070b16;
+  --bg-elevated: #0c1322;
+  --panel: #111a2c;
+  --panel-2: #16213a;
+  --border: #1f2b44;
+  --border-strong: #2c3b5c;
+  --fg: #e6ecf7;
+  --fg-muted: #8b98b3;
+  --fg-subtle: #5d6a85;
+  --accent: #22d3ee;
+  --accent-strong: #06b6d4;
+  --bull: #22c55e;
+  --bear: #ef4444;
+  --warn: #f59e0b;
+  --info: #60a5fa;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-bull: var(--bull);
+  --color-bear: var(--bear);
+  --color-warn: var(--warn);
+  --color-info: var(--info);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Subtle glass for control panels — used sparingly. */
+.glass {
+  background: color-mix(in srgb, var(--panel) 78%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

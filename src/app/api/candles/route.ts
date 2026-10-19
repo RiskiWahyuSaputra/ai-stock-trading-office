@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { z } from "zod";
 import { CandleSeriesSchema, TimeframeSchema } from "@/lib/domain/schemas";
 import { errorResponse, searchParams } from "@/server/http/respond";
@@ -11,6 +12,7 @@ const Query = z.object({
 
 /** GET /api/candles?symbol=BBCA&timeframe=1D&limit=120 */
 export async function GET(request: Request) {
+  await connection();
   try {
     const { symbol, timeframe, limit } = Query.parse(searchParams(request));
     const series = CandleSeriesSchema.parse(await getMarketProvider().getCandles(symbol, timeframe, limit));

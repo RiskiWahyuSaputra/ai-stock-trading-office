@@ -146,6 +146,8 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 let controller: AbortController | null = null;
 
+const noopStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+
 /* ------------------------------------------------------------------ */
 /* Store                                                                */
 /* ------------------------------------------------------------------ */
@@ -352,7 +354,7 @@ export const useOffice = create<OfficeState>()(
       version: 1,
       // Rehydrated after mount (see StoreHydrator) to avoid SSR mismatches.
       skipHydration: true,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => (typeof window === "undefined" ? noopStorage : window.localStorage)),
       partialize: (s) => ({
         activity: s.activity.slice(0, 100),
         reports: s.reports,

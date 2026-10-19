@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { z } from "zod";
 import { MarketSchema } from "@/lib/domain/schemas";
 import { errorResponse, searchParams } from "@/server/http/respond";
@@ -7,6 +8,7 @@ const Query = z.object({ q: z.string().max(40).default(""), market: MarketSchema
 
 /** GET /api/symbols?q=bb&market=IDX — autocomplete from the active provider. */
 export async function GET(request: Request) {
+  await connection();
   try {
     const { q, market } = Query.parse(searchParams(request));
     const provider = getMarketProvider();

@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { z } from "zod";
 import { runNewsResearch } from "@/lib/agents/news-researcher";
 import { NewsItemSchema } from "@/lib/domain/schemas";
@@ -11,6 +12,7 @@ const Query = z.object({
 
 /** GET /api/news?symbol=BBCA — news with rule-based sentiment classification. */
 export async function GET(request: Request) {
+  await connection();
   try {
     const { symbol, limit } = Query.parse(searchParams(request));
     const provider = getNewsProvider();

@@ -14,6 +14,16 @@ const POSITIVE: [RegExp, number][] = [
   [/upgraded?/i, 0.6],
   [/partnership|contract win|acquires/i, 0.4],
   [/growth|expands?/i, 0.3],
+  [/surges?|soars?|rall(y|ies)|jumps?|bounces?|record high|outperform/i, 0.4],
+  // Bahasa Indonesia (IDX headlines)
+  [/laba (bersih )?(naik|melonjak|tumbuh|meroket)|cetak rekor|rekor (laba|pendapatan)/i, 0.9],
+  [/buyback|pembelian kembali saham/i, 0.7],
+  [/dividen (naik|jumbo|interim)|bagi dividen|tebar dividen/i, 0.6],
+  [/target harga naik|rekomendasi (beli|buy)|upgrade/i, 0.6],
+  [/asing (borong|beli|net buy)|net buy asing|diborong/i, 0.5],
+  [/melonjak|meroket|menguat|rebound|terbang/i, 0.4],
+  [/akuisisi|ekspansi|kerja sama|kontrak baru/i, 0.4],
+  [/\bnaik\b|tumbuh|positif/i, 0.25],
 ];
 
 const NEGATIVE: [RegExp, number][] = [
@@ -24,10 +34,21 @@ const NEGATIVE: [RegExp, number][] = [
   [/weaker outlook|warns|profit warning/i, -0.7],
   [/rights issue|dilution/i, -0.4],
   [/rising costs|slowing demand/i, -0.3],
+  [/plunges?|tumbles?|slumps?|sell-?off|slides?|sinks?|losses|underperform/i, -0.4],
+  // Bahasa Indonesia (IDX headlines)
+  [/laba (bersih )?(turun|anjlok|merosot|tergerus)|rugi bersih|merugi/i, -0.9],
+  [/gugatan|digugat|diperiksa|investigasi|penyelidikan|fraud|korupsi/i, -0.8],
+  [/suspensi|disuspensi|gagal bayar|default|pailit|PKPU/i, -0.9],
+  [/downgrade|target harga (turun|dipangkas)|rekomendasi (jual|sell)/i, -0.6],
+  [/asing (jual|lepas|net sell)|net sell asing|dilepas asing/i, -0.5],
+  [/anjlok|ambles|ambruk|longsor|terjun|tertekan|melemah|merosot|berguguran|rontok|kejatuhan/i, -0.5],
+  [/rights issue|right issue|dilusi|PHK/i, -0.4],
+  [/\bturun\b|negatif|koreksi/i, -0.25],
 ];
 
-const HIGH_IMPACT = /earnings|profit|investigation|lawsuit|rights issue|dividend|buyback|downgrad|upgrad|outlook/i;
-const MEDIUM_IMPACT = /partnership|index|rebalanc|general meeting|revenue/i;
+const HIGH_IMPACT =
+  /earnings|profit|investigation|lawsuit|rights issue|right issue|dividend|buyback|downgrad|upgrad|outlook|laba|rugi|dividen|gugatan|suspensi|gagal bayar|pailit|akuisisi|kinerja/i;
+const MEDIUM_IMPACT = /partnership|index|rebalanc|general meeting|revenue|sell-?off|plunge|RUPS|pendapatan|asing|target harga|indeks|IHSG|MSCI|LQ45|anjlok/i;
 
 export function classify(headline: string): { score: number; sentiment: Sentiment } {
   let score = 0;
@@ -82,7 +103,7 @@ export function runNewsResearch(items: NewsItem[], source: NewsReport["source"],
     summary,
     catalysts,
     risks,
-    method: "Rule-based keyword lexicon, recency-weighted (half-life 24h), high-impact ×2. Bukan LLM.",
+    method: "Leksikon kata kunci EN/ID berbasis aturan, bobot recency (half-life 24 jam), dampak tinggi ×2. Hanya judul yang dinilai; bukan LLM.",
     source,
     completedAt: now,
   };

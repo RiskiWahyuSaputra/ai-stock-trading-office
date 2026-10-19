@@ -73,3 +73,13 @@ describe("full pipeline over demo universe", () => {
     }
   }
 });
+
+describe("news researcher (Bahasa Indonesia)", () => {
+  it("classifies Indonesian headlines", () => {
+    expect(classify("Laba bersih BBCA naik 12% di kuartal III").sentiment).toBe("positive");
+    expect(classify("BCA kembali gaspol buyback saham BBCA").sentiment).toBe("positive");
+    expect(classify("Saham GOTO anjlok, asing net sell besar").sentiment).toBe("negative");
+    expect(classify("Emiten X disuspensi bursa").sentiment).toBe("negative");
+    expect(classify("Jadwal RUPS BBRI bulan depan").sentiment).toBe("neutral");
+  });
+});

@@ -21,6 +21,7 @@
     "recharts": "^3.10.1",
     "server-only": "^0.0.1",
     "three": "^0.186.1",
+    "yahoo-finance2": "^4.0.4",
     "zod": "^4.6.7",
     "zustand": "^5.0.15"
   },

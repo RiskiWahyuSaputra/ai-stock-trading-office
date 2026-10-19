@@ -13,7 +13,8 @@ export default function NewsCenterPage() {
   const watchlist = useOffice((s) => s.watchlist);
   const [market, setMarket] = useState<Market>("IDX");
   const [query, setQuery] = useState("");
-  const [symbol, setSymbol] = useState(watchlist[0]?.symbol ?? "BBCA");
+  const [selected, setSelected] = useState<{ symbol: string; market: Market }>(watchlist[0] ?? { symbol: "BBCA", market: "IDX" });
+  const symbol = selected.symbol;
 
   return (
     <div className="page-enter space-y-4 p-3 sm:p-4">
@@ -26,7 +27,7 @@ export default function NewsCenterPage() {
             market={market}
             onChange={setQuery}
             onSelect={(s) => {
-              setSymbol(s.symbol);
+              setSelected({ symbol: s.symbol, market: s.market });
               setQuery("");
             }}
           />
@@ -36,7 +37,7 @@ export default function NewsCenterPage() {
               {watchlist.map((w) => (
                 <button
                   key={w.symbol}
-                  onClick={() => setSymbol(w.symbol)}
+                  onClick={() => setSelected({ symbol: w.symbol, market: w.market })}
                   className={cn("rounded-md border px-2 py-1 text-xs font-medium", symbol === w.symbol ? "border-accent text-accent" : "border-line-strong text-muted hover:text-fg")}
                 >
                   {w.symbol}
@@ -45,7 +46,7 @@ export default function NewsCenterPage() {
             </div>
           </div>
         </Panel>
-        <NewsFeed symbol={symbol} />
+        <NewsFeed symbol={symbol} market={selected.market} />
       </div>
     </div>
   );

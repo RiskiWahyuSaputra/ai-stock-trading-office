@@ -50,7 +50,8 @@ export function AnalyzeStock() {
   const report = run?.reportId ? reports.find((r) => r.id === run.reportId) : undefined;
   const chartSymbol = running || report ? (run?.request.symbol ?? null) : symbol.length >= 2 ? symbol : null;
   const chartTf = running || report ? (run?.request.timeframe ?? timeframe) : timeframe;
-  const chart = useCandles(chartSymbol, chartTf, 120);
+  const chartMarket = running || report ? (run?.request.market ?? market) : market;
+  const chart = useCandles(chartSymbol, chartMarket, chartTf, 120);
 
   const start = () => {
     const s = symbol.trim().toUpperCase();

@@ -10,6 +10,11 @@ export const MAX_DATA_AGE_MS: Record<Timeframe, number> = {
   "1W": 14 * 86_400_000,
 };
 export const MAX_QUOTE_AGE_MS = 30 * 60_000;
+/**
+ * When the exchange is closed the newest data is the last session; allow up
+ * to a long weekend (plus a holiday) before calling it stale.
+ */
+export const CLOSED_MARKET_GRACE_MS = 4 * 86_400_000;
 export const CONFLICT_THRESHOLD = 0.35;
 
 /**
@@ -34,14 +39,17 @@ export function runReview(params: {
   check("Kelengkapan data harga", enoughCandles, `${technical.candlesUsed} candle (${technical.timeframe}), minimum ${MIN_CANDLES}.`);
   if (!enoughCandles) returnedTo.add("technical");
 
+  const closed = quote.marketOpen === false;
+  const closedNote = closed ? " Pasar sedang tutup — memakai data sesi terakhir." : "";
   const candleAge = now - technical.dataTimestamp;
-  const freshCandles = candleAge <= MAX_DATA_AGE_MS[technical.timeframe];
-  check("Kesegaran data candle", freshCandles, `Candle terakhir ${formatAge(candleAge)} lalu.`);
+  const freshCandles = candleAge <= Math.max(MAX_DATA_AGE_MS[technical.timeframe], closed ? CLOSED_MARKET_GRACE_MS : 0);
+  check("Kesegaran data candle", freshCandles, `Candle terakhir ${formatAge(candleAge)} lalu.${closedNote}`);
   if (!freshCandles) returnedTo.add("technical");
 
   const quoteAge = now - quote.timestamp;
-  const freshQuote = quoteAge <= MAX_QUOTE_AGE_MS;
-  check("Kesegaran harga terakhir", freshQuote, `Quote ${formatAge(quoteAge)} lalu dari ${quote.source.name}.`);
+  const freshQuote = quoteAge <= (closed ? CLOSED_MARKET_GRACE_MS : MAX_QUOTE_AGE_MS + (quote.delayMinutes ?? 0) * 60_000);
+  const delay = quote.delayMinutes ? ` (delay bursa ${quote.delayMinutes} menit)` : "";
+  check("Kesegaran harga terakhir", freshQuote, `Quote ${formatAge(quoteAge)} lalu dari ${quote.source.name}${delay}.${closedNote}`);
 
   check("Ketersediaan berita", news.items.length > 0, `${news.items.length} berita dari ${news.source.name}.`);
 

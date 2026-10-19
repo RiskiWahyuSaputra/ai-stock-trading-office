@@ -17,14 +17,23 @@ export interface MarketDataProvider {
   /** Whether this provider streams live prices (required for price alerts). */
   readonly supportsLivePrices: boolean;
   searchSymbols(query: string, market?: Market): Promise<StockInfo[]>;
-  getStock(symbol: string): Promise<StockInfo | null>;
-  getQuote(symbol: string): Promise<Quote>;
-  getCandles(symbol: string, timeframe: Timeframe, limit: number): Promise<CandleSeries>;
+  /** `market` disambiguates symbols listed on several exchanges. */
+  getStock(symbol: string, market?: Market): Promise<StockInfo | null>;
+  getQuote(symbol: string, market?: Market): Promise<Quote>;
+  getCandles(symbol: string, timeframe: Timeframe, limit: number, market?: Market): Promise<CandleSeries>;
 }
 
 export interface NewsProvider {
   readonly source: DataSource;
-  getNews(symbol: string, limit: number): Promise<NewsItem[]>;
+  getNews(symbol: string, limit: number, market?: Market): Promise<NewsItem[]>;
+}
+
+/** Upstream provider failed (network, rate limit, bad payload). */
+export class ProviderError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ProviderError";
+  }
 }
 
 export class SymbolNotFoundError extends Error {

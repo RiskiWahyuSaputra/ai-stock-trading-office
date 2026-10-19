@@ -24,14 +24,15 @@ export function WatchlistPanel() {
   const [quotes, setQuotes] = useState<Record<string, Quote | { error: string }>>({});
   const [loading, setLoading] = useState(false);
 
-  const symbols = watchlist.map((w) => w.symbol).join(",");
+  const symbols = watchlist.map((w) => `${w.market}:${w.symbol}`).join(",");
   const refresh = useCallback(async () => {
     if (!symbols) return;
     setLoading(true);
     const entries = await Promise.all(
-      symbols.split(",").map(async (s) => {
+      symbols.split(",").map(async (entry) => {
+        const [m, s] = entry.split(":") as [Market, string];
         try {
-          return [s, await api.quote(s)] as const;
+          return [s, await api.quote(s, m)] as const;
         } catch (e) {
           return [s, { error: (e as Error).message }] as const;
         }

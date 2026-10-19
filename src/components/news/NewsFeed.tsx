@@ -4,7 +4,7 @@ import { Newspaper } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge, DemoBadge, EmptyState, Panel, PanelHeader } from "@/components/ui/primitives";
 import { api } from "@/lib/api/client";
-import type { NewsReport } from "@/lib/domain/schemas";
+import type { Market, NewsReport } from "@/lib/domain/schemas";
 import { cn, formatTime } from "@/lib/utils";
 
 const SENTIMENT_TONE = {
@@ -14,17 +14,17 @@ const SENTIMENT_TONE = {
 } as const;
 
 /** News for one symbol, classified by the News Researcher's rule-based method. */
-export function NewsFeed({ symbol }: { symbol: string }) {
+export function NewsFeed({ symbol, market }: { symbol: string; market: Market }) {
   const [state, setState] = useState<{ symbol: string; report: NewsReport | null; error: string | null }>({ symbol: "", report: null, error: null });
 
   useEffect(() => {
     const ctrl = new AbortController();
     api
-      .news(symbol, ctrl.signal)
+      .news(symbol, market, ctrl.signal)
       .then((report) => setState({ symbol, report, error: null }))
       .catch((e: Error) => e.name !== "AbortError" && setState({ symbol, report: null, error: e.message }));
     return () => ctrl.abort();
-  }, [symbol]);
+  }, [symbol, market]);
 
   const report = state.symbol === symbol ? state.report : null;
   const error = state.symbol === symbol ? state.error : null;

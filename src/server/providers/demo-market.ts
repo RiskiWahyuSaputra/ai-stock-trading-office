@@ -41,9 +41,9 @@ export class DemoMarketProvider implements MarketDataProvider {
       .map(toInfo);
   }
 
-  async getStock(symbol: string) {
+  async getStock(symbol: string, market?: Market) {
     const s = findDemoStock(symbol);
-    return s ? toInfo(s) : null;
+    return s && (!market || s.market === market) ? toInfo(s) : null;
   }
 
   async getCandles(symbol: string, timeframe: Timeframe, limit: number): Promise<CandleSeries> {

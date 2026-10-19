@@ -59,7 +59,7 @@ export function FinalSignalReport({ report }: { report: FinalReport }) {
   const [full, setFull] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
-  const chart = useCandles(report.request.symbol, report.request.timeframe, 120);
+  const chart = useCandles(report.request.symbol, report.request.market, report.request.timeframe, 120);
   const actionable = report.status === "BUY_SETUP" || report.status === "SELL_SETUP";
 
   const flash = (msg: string) => {
@@ -92,7 +92,7 @@ export function FinalSignalReport({ report }: { report: FinalReport }) {
     if (!actionable || report.stopLoss === null || !report.entryZone) return;
     setChecking(true);
     try {
-      const q = await api.quote(report.request.symbol);
+      const q = await api.quote(report.request.symbol, m);
       const long = report.status === "BUY_SETUP";
       const broken = long ? q.lastPrice <= report.stopLoss : q.lastPrice >= report.stopLoss;
       const hitTp1 = long ? q.lastPrice >= report.takeProfits[0] : q.lastPrice <= report.takeProfits[0];
@@ -182,6 +182,8 @@ export function FinalSignalReport({ report }: { report: FinalReport }) {
           <dl className="divide-y divide-line">
             <Row label="Last price" value={formatPrice(report.quote.lastPrice, m)} />
             <Row label="Data timestamp" value={formatTime(report.quote.timestamp)} />
+            {report.quote.delayMinutes !== undefined && <Row label="Delay bursa" value={`${report.quote.delayMinutes} menit`} />}
+            {report.quote.marketOpen !== undefined && <Row label="Status pasar" value={report.quote.marketOpen ? "Sesi berjalan" : "Tutup (data sesi terakhir)"} />}
             <Row label="Timeframe" value={report.request.timeframe} />
             <Row label="Candle terakhir" value={formatTime(report.technical.dataTimestamp)} />
             <Row label="Sumber" value={<span className="text-xs">{report.sources.map((s) => s.name).join(", ")}</span>} />

@@ -52,6 +52,10 @@ export const QuoteSchema = z.object({
   changePct: z.number(),
   timestamp: z.number().int().positive(),
   source: DataSourceSchema,
+  /** Whether the exchange is in its regular session (when the provider knows). */
+  marketOpen: z.boolean().optional(),
+  /** Exchange-imposed data delay in minutes (e.g. 10 for IDX on Yahoo). */
+  delayMinutes: z.number().nonnegative().optional(),
 });
 export type Quote = z.infer<typeof QuoteSchema>;
 

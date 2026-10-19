@@ -43,15 +43,12 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
   for (const a of AGENT_ORDER) yield status(a, "queued", 0, `Menunggu giliran untuk ${request.symbol}.`);
 
   try {
-    const stock = await market.getStock(request.symbol);
-    if (!stock) throw new SymbolNotFoundError(request.symbol);
-    if (stock.market !== request.market) {
-      throw new Error(`${request.symbol} terdaftar di pasar ${stock.market}, bukan ${request.market}.`);
-    }
+    const stock = await market.getStock(request.symbol, request.market);
+    if (!stock) throw new SymbolNotFoundError(`${request.symbol} (${request.market})`);
 
     // 1. News Researcher
     yield status("news", "researching", 10, `Mengambil berita ${request.symbol} dari ${newsProvider.source.name}.`);
-    const items = await newsProvider.getNews(request.symbol, 8);
+    const items = await newsProvider.getNews(request.symbol, 8, request.market);
     yield status("news", "researching", 60, `${items.length} berita diterima, mengklasifikasi sentimen.`);
     const news: NewsReport = runNewsResearch(items, newsProvider.source);
     yield status("news", "completed", 100, news.summary);
@@ -59,10 +56,11 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
     // 2. Technical Analyst
     yield status("technical", "analyzing", 10, `Mengambil ${CANDLES} candle ${request.timeframe} dan harga terakhir.`);
     let [series, quote]: [CandleSeries, Quote] = await Promise.all([
-      market.getCandles(request.symbol, request.timeframe, CANDLES),
-      market.getQuote(request.symbol),
+      market.getCandles(request.symbol, request.timeframe, CANDLES, request.market),
+      market.getQuote(request.symbol, request.market),
     ]);
-    yield status("technical", "analyzing", 55, `Menghitung indikator dari ${series.candles.length} candle.`);
+    const delay = quote.delayMinutes ? `, delay bursa ${quote.delayMinutes} menit` : "";
+    yield status("technical", "analyzing", 55, `Menghitung indikator dari ${series.candles.length} candle (${series.source.name}${delay}).`);
     let technical: TechnicalReport = runTechnicalAnalysis(series, request.market, request.mode);
     yield status("technical", "completed", 100, technicalSummary(technical));
 
@@ -83,8 +81,8 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
       yield status("reviewer", "needs_attention", 50, "Data teknikal belum memadai — dikembalikan ke Technical Analyst.");
       yield status("technical", "analyzing", 20, `Pemeriksaan ulang dengan ${CANDLES_RECHECK} candle.`);
       [series, quote] = await Promise.all([
-        market.getCandles(request.symbol, request.timeframe, CANDLES_RECHECK),
-        market.getQuote(request.symbol),
+        market.getCandles(request.symbol, request.timeframe, CANDLES_RECHECK, request.market),
+        market.getQuote(request.symbol, request.market),
       ]);
       technical = runTechnicalAnalysis(series, request.market, request.mode);
       yield status("technical", "completed", 100, `Ulang: ${technicalSummary(technical)}`);
@@ -98,7 +96,7 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
       "reviewer",
       review.verdict === "approved" ? "completed" : "needs_attention",
       100,
-      `Hasil review: ${review.verdict.replace("_", " ")}${review.conflicts.length ? ` — ${review.conflicts[0]}` : ""}.`,
+      `Hasil review: ${review.verdict.replace("_", " ")}${review.conflicts.length ? ` — ${review.conflicts[0].replace(/\.$/, "")}` : ""}.`,
     );
 
     // 5. Final Signal Officer

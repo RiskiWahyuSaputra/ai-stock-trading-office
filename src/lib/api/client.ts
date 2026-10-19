@@ -47,16 +47,16 @@ export const api = {
       z.object({ results: z.array(StockInfoSchema), source: DataSourceSchema }),
       signal,
     ),
-  quote: (symbol: string, signal?: AbortSignal) =>
-    getJson(`/api/quote?symbol=${encodeURIComponent(symbol)}`, QuoteSchema, signal),
-  candles: (symbol: string, timeframe: Timeframe, limit = 120, signal?: AbortSignal) =>
+  quote: (symbol: string, market: Market, signal?: AbortSignal) =>
+    getJson(`/api/quote?${new URLSearchParams({ symbol, market })}`, QuoteSchema, signal),
+  candles: (symbol: string, market: Market, timeframe: Timeframe, limit = 120, signal?: AbortSignal) =>
     getJson(
-      `/api/candles?${new URLSearchParams({ symbol, timeframe, limit: String(limit) })}`,
+      `/api/candles?${new URLSearchParams({ symbol, market, timeframe, limit: String(limit) })}`,
       CandleSeriesSchema,
       signal,
     ),
-  news: (symbol: string, signal?: AbortSignal) =>
-    getJson(`/api/news?symbol=${encodeURIComponent(symbol)}`, NewsReportSchema, signal),
+  news: (symbol: string, market: Market, signal?: AbortSignal) =>
+    getJson(`/api/news?${new URLSearchParams({ symbol, market })}`, NewsReportSchema, signal),
 };
 
 /** Start a workflow run and yield validated events as they stream in. */

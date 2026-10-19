@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "symbols:update": "node scripts/build-symbol-directory.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

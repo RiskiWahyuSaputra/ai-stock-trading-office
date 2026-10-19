@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aggregateHourly, chartRequest, cleanBars, fromYahooSymbol, parseRss, toYahooSymbol } from "./yahoo-helpers";
+import { aggregateHourly, chartRequest, cleanBars, fromYahooSymbol, parseRss, searchDirectory, toYahooSymbol } from "./yahoo-helpers";
 
 describe("symbol mapping", () => {
   it("maps IDX and US symbols to Yahoo", () => {
@@ -62,5 +62,27 @@ describe("parseRss", () => {
     expect(items).toEqual([
       { title: "BCA Gaspol Buyback Saham BBCA & Dividen", link: "https://news.google.com/a", publishedAt: Date.parse("Sun, 18 Oct 2026 07:00:00 GMT"), publisher: "Pasardana" },
     ]);
+  });
+});
+
+describe("searchDirectory", () => {
+  const items = [
+    { symbol: "BBRI", name: "PT Bank Rakyat Indonesia (Persero) Tbk", market: "IDX", sector: "Financial Services", currency: "IDR" },
+    { symbol: "BBCA", name: "PT Bank Central Asia Tbk", market: "IDX", sector: "Financial Services", currency: "IDR" },
+    { symbol: "TLKM", name: "PT Telkom Indonesia (Persero) Tbk", market: "IDX", sector: "Communication Services", currency: "IDR" },
+    { symbol: "TLK", name: "Perusahaan Perseroan (Persero) PT Telekomunikasi Indonesia Tbk", market: "US", sector: "Communication Services", currency: "USD" },
+  ] as const;
+
+  it("matches ticker prefixes, which Yahoo search does not", () => {
+    expect(searchDirectory([...items], "bb", "IDX", 10).map((s) => s.symbol)).toEqual(["BBCA", "BBRI"]);
+  });
+
+  it("ranks exact code first, then prefix, then name", () => {
+    expect(searchDirectory([...items], "TLK", undefined, 10).map((s) => s.symbol)).toEqual(["TLK", "TLKM"]);
+    expect(searchDirectory([...items], "central", "IDX", 10).map((s) => s.symbol)).toEqual(["BBCA"]);
+  });
+
+  it("returns the curated order for an empty query", () => {
+    expect(searchDirectory([...items], "", "IDX", 2).map((s) => s.symbol)).toEqual(["BBRI", "BBCA"]);
   });
 });

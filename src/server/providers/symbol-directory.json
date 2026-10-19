@@ -1,0 +1,1637 @@
+{
+  "generatedAt": "2026-10-19T04:36:06.164Z",
+  "source": "Yahoo Finance",
+  "items": [
+    {
+      "symbol": "BBCA",
+      "name": "PT Bank Central Asia Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BBRI",
+      "name": "PT Bank Rakyat Indonesia (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BMRI",
+      "name": "PT Bank Mandiri (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BBNI",
+      "name": "PT Bank Negara Indonesia (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BRIS",
+      "name": "PT Bank Syariah Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BBTN",
+      "name": "PT Bank Tabungan Negara (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ARTO",
+      "name": "PT Bank Jago Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BNGA",
+      "name": "PT Bank CIMB Niaga Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "NISP",
+      "name": "PT Bank OCBC NISP Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PNBN",
+      "name": "PT Bank Pan Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MEGA",
+      "name": "PT Bank Mega Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BDMN",
+      "name": "PT Bank Danamon Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BJBR",
+      "name": "PT Bank Pembangunan Daerah Jawa Barat dan Banten Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BJTM",
+      "name": "PT Bank Pembangunan Daerah Jawa Timur Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BBYB",
+      "name": "PT Bank Neo Commerce Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BBHI",
+      "name": "PT Allo Bank Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AGRO",
+      "name": "PT Bank Raya Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BTPS",
+      "name": "PT Bank BTPN Syariah Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TLKM",
+      "name": "Perusahaan Perseroan (Persero) PT Telekomunikasi Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ISAT",
+      "name": "PT Indosat Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "EXCL",
+      "name": "PT XLSMART Telecom Sejahtera Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TOWR",
+      "name": "PT Sarana Menara Nusantara Tbk.",
+      "market": "IDX",
+      "sector": "Real Estate",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TBIG",
+      "name": "PT Tower Bersama Infrastructure Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MTEL",
+      "name": "PT Dayamitra Telekomunikasi Tbk.",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ASII",
+      "name": "PT Astra International Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "UNTR",
+      "name": "PT United Tractors Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AUTO",
+      "name": "PT Astra Otoparts Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "GJTL",
+      "name": "PT. Gajah Tunggal Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SMSM",
+      "name": "PT Selamat Sempurna Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ICBP",
+      "name": "PT Indofood CBP Sukses Makmur Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "INDF",
+      "name": "PT Indofood Sukses Makmur Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "UNVR",
+      "name": "PT Unilever Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MYOR",
+      "name": "PT Mayora Indah Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "KLBF",
+      "name": "PT Kalbe Farma Tbk.",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SIDO",
+      "name": "PT Industri Jamu dan Farmasi Sido Muncul Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "CPIN",
+      "name": "PT Charoen Pokphand Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "JPFA",
+      "name": "PT Japfa Comfeed Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "HMSP",
+      "name": "PT Hanjaya Mandala Sampoerna Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "GGRM",
+      "name": "PT Gudang Garam Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "CMRY",
+      "name": "PT Cisarua Mountain Dairy Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ULTJ",
+      "name": "PT Ultrajaya Milk Industry & Trading Company Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "GOOD",
+      "name": "PT Garudafood Putra Putri Jaya Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ROTI",
+      "name": "PT Nippon Indosari Corpindo Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "HOKI",
+      "name": "PT Buyung Poetra Sembada Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "CLEO",
+      "name": "PT Sariguna Primatirta Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AMRT",
+      "name": "PT Sumber Alfaria Trijaya Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MIDI",
+      "name": "PT Midi Utama Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ACES",
+      "name": "PT Aspirasi Hidup Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MAPI",
+      "name": "PT. Mitra Adiperkasa Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MAPA",
+      "name": "PT Map Aktif Adiperkasa Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ERAA",
+      "name": "PT Erajaya Swasembada Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "LPPF",
+      "name": "PT MDS Retailing Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "RALS",
+      "name": "PT Ramayana Lestari Sentosa Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ADRO",
+      "name": "PT Alamtri Resources Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AADI",
+      "name": "PT Adaro Andalan Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ADMR",
+      "name": "PT Alamtri Minerals Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PTBA",
+      "name": "PT Bukit Asam (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ITMG",
+      "name": "PT Indo Tambangraya Megah Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "HRUM",
+      "name": "PT Harum Energy Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "INDY",
+      "name": "PT. Indika Energy Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BUMI",
+      "name": "PT Bumi Resources Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "DOID",
+      "name": "PT Buma Internasional Grup Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MEDC",
+      "name": "PT Medco Energi Internasional Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PGAS",
+      "name": "PT Perusahaan Gas Negara (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Utilities",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AKRA",
+      "name": "PT AKR Corporindo Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ELSA",
+      "name": "PT Elnusa Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ENRG",
+      "name": "PT Energi Mega Persada Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "RAJA",
+      "name": "PT Rukun Raharja Tbk",
+      "market": "IDX",
+      "sector": "Utilities",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ANTM",
+      "name": "PT Antam (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "INCO",
+      "name": "PT Vale Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MDKA",
+      "name": "PT Merdeka Copper Gold Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TINS",
+      "name": "PT TIMAH Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "NCKL",
+      "name": "PT Trimegah Bangun Persada Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MBMA",
+      "name": "PT Merdeka Battery Materials Tbk.",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AMMN",
+      "name": "PT Amman Mineral Internasional Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BRMS",
+      "name": "PT Bumi Resources Minerals Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PSAB",
+      "name": "PT J Resources Asia Pasifik Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "DEWA",
+      "name": "PT Darma Henwa Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SMGR",
+      "name": "PT Semen Indonesia (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "INTP",
+      "name": "PT Indocement Tunggal Prakarsa Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SMBR",
+      "name": "PT Semen Baturaja (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "WIKA",
+      "name": "PT Wijaya Karya (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PTPP",
+      "name": "PT PP (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ADHI",
+      "name": "PT Adhi Karya (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "WTON",
+      "name": "PT Wijaya Karya Beton Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "WSBP",
+      "name": "PT Waskita Beton Precast Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "JSMR",
+      "name": "PT Jasa Marga (Persero) Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "CTRA",
+      "name": "PT Ciputra Development Tbk",
+      "market": "IDX",
+      "sector": "Real Estate",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BSDE",
+      "name": "PT Bumi Serpong Damai Tbk",
+      "market": "IDX",
+      "sector": "Real Estate",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PWON",
+      "name": "PT Pakuwon Jati Tbk",
+      "market": "IDX",
+      "sector": "Real Estate",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SMRA",
+      "name": "PT Summarecon Agung Tbk",
+      "market": "IDX",
+      "sector": "Real Estate",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ASRI",
+      "name": "PT Alam Sutera Realty Tbk",
+      "market": "IDX",
+      "sector": "Real Estate",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "LPKR",
+      "name": "PT Lippo Karawaci Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "DMAS",
+      "name": "PT Puradelta Lestari Tbk",
+      "market": "IDX",
+      "sector": "Real Estate",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BREN",
+      "name": "PT Barito Renewables Energy Tbk",
+      "market": "IDX",
+      "sector": "Utilities",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BRPT",
+      "name": "PT Barito Pacific Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TPIA",
+      "name": "PT Chandra Asri Pacific Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "CUAN",
+      "name": "PT Petrindo Jaya Kreasi Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PGEO",
+      "name": "PT Pertamina Geothermal Energy Tbk",
+      "market": "IDX",
+      "sector": "Utilities",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ESSA",
+      "name": "PT ESSA Industries Indonesia Tbk.",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "GOTO",
+      "name": "PT GoTo Gojek Tokopedia Tbk",
+      "market": "IDX",
+      "sector": "Technology",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BUKA",
+      "name": "PT Bukalapak.com Tbk.",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "EMTK",
+      "name": "PT Elang Mahkota Teknologi Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SCMA",
+      "name": "PT Surya Citra Media Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MNCN",
+      "name": "PT. Media Nusantara Citra Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "DNET",
+      "name": "PT Indoritel Makmur Internasional Tbk.",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MSIN",
+      "name": "PT MNC Digital Entertainment Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MTDL",
+      "name": "PT Metrodata Electronics Tbk",
+      "market": "IDX",
+      "sector": "Technology",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SRTG",
+      "name": "PT Saratoga Investama Sedaya Tbk",
+      "market": "IDX",
+      "sector": "Financial Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "INKP",
+      "name": "PT Indah Kiat Pulp & Paper Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TKIM",
+      "name": "PT Pabrik Kertas Tjiwi Kimia Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "HEAL",
+      "name": "PT Medikaloka Hermina Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MIKA",
+      "name": "PT Mitra Keluarga Karyasehat Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SILO",
+      "name": "PT Siloam International Hospitals Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PRDA",
+      "name": "PT Prodia Widyahusada Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MPMX",
+      "name": "PT Mitra Pinasthika Mustika Tbk",
+      "market": "IDX",
+      "sector": "Consumer Cyclical",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TAPG",
+      "name": "PT Triputra Agro Persada Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AALI",
+      "name": "PT Astra Agro Lestari Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "LSIP",
+      "name": "PT Perusahaan Perkebunan London Sumatra Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SSMS",
+      "name": "PT Sawit Sumbermas Sarana Tbk.",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "DSNG",
+      "name": "PT Dharma Satya Nusantara Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BWPT",
+      "name": "PT Eagle High Plantations Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "KAEF",
+      "name": "PT Kimia Farma Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "INAF",
+      "name": "PT Indofarma Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "PYFA",
+      "name": "PT Pyridam Farma Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TSPC",
+      "name": "PT Tempo Scan Pacific Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MARK",
+      "name": "PT Mark Dynamics Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Healthcare",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SSIA",
+      "name": "PT Surya Semesta Internusa Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BIRD",
+      "name": "PT Blue Bird Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ASSA",
+      "name": "PT Adi Sarana Armada Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TMAS",
+      "name": "PT Temas Tbk.",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SMDR",
+      "name": "PT Samudera Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Industrials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "GEMS",
+      "name": "PT Golden Energy Mines Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "KKGI",
+      "name": "PT Resource Alam Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "BSSR",
+      "name": "PT Baramulti Suksessarana Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "TOBA",
+      "name": "PT TBS Energi Utama Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ARCI",
+      "name": "PT Archi Indonesia Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MCOL",
+      "name": "PT Prima Andalan Mandiri Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "ABMM",
+      "name": "PT ABM Investama Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MYOH",
+      "name": "PT Samindo Resources Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "RATU",
+      "name": "PT Raharja Energi Cepu Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AVIA",
+      "name": "PT Avia Avian Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "CDIA",
+      "name": "PT Chandra Daya Investasi TBK.",
+      "market": "IDX",
+      "sector": "Utilities",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "JARR",
+      "name": "PT Jhonlin Agro Raya Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "NICL",
+      "name": "PT PAM Mineral Tbk",
+      "market": "IDX",
+      "sector": "Basic Materials",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "DSSA",
+      "name": "PT Dian Swastatika Sentosa Tbk",
+      "market": "IDX",
+      "sector": "Energy",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "SMAR",
+      "name": "PT Sinar Mas Agro Resources and Technology Tbk",
+      "market": "IDX",
+      "sector": "Consumer Defensive",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "FILM",
+      "name": "PT.MD Entertainment Tbk",
+      "market": "IDX",
+      "sector": "Communication Services",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "MLPT",
+      "name": "PT Multipolar Technology Tbk",
+      "market": "IDX",
+      "sector": "Technology",
+      "currency": "IDR"
+    },
+    {
+      "symbol": "AAPL",
+      "name": "Apple Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "MSFT",
+      "name": "Microsoft Corporation",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "NVDA",
+      "name": "NVIDIA Corporation",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "AMZN",
+      "name": "Amazon.com, Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "GOOGL",
+      "name": "Alphabet Inc.",
+      "market": "US",
+      "sector": "Communication Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "META",
+      "name": "Meta Platforms, Inc.",
+      "market": "US",
+      "sector": "Communication Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "TSLA",
+      "name": "Tesla, Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "BRK.B",
+      "name": "Berkshire Hathaway Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "AVGO",
+      "name": "Broadcom Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "JPM",
+      "name": "JPMorgan Chase & Co.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "LLY",
+      "name": "Eli Lilly and Company",
+      "market": "US",
+      "sector": "Healthcare",
+      "currency": "USD"
+    },
+    {
+      "symbol": "V",
+      "name": "Visa Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "MA",
+      "name": "Mastercard Incorporated",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "UNH",
+      "name": "UnitedHealth Group Incorporated",
+      "market": "US",
+      "sector": "Healthcare",
+      "currency": "USD"
+    },
+    {
+      "symbol": "XOM",
+      "name": "ExxonMobil Holdings Corporation",
+      "market": "US",
+      "sector": "Energy",
+      "currency": "USD"
+    },
+    {
+      "symbol": "JNJ",
+      "name": "Johnson & Johnson",
+      "market": "US",
+      "sector": "Healthcare",
+      "currency": "USD"
+    },
+    {
+      "symbol": "WMT",
+      "name": "Walmart Inc.",
+      "market": "US",
+      "sector": "Consumer Defensive",
+      "currency": "USD"
+    },
+    {
+      "symbol": "PG",
+      "name": "The Procter & Gamble Company",
+      "market": "US",
+      "sector": "Consumer Defensive",
+      "currency": "USD"
+    },
+    {
+      "symbol": "HD",
+      "name": "The Home Depot, Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "COST",
+      "name": "Costco Wholesale Corporation",
+      "market": "US",
+      "sector": "Consumer Defensive",
+      "currency": "USD"
+    },
+    {
+      "symbol": "ORCL",
+      "name": "Oracle Corporation",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "ABBV",
+      "name": "AbbVie Inc.",
+      "market": "US",
+      "sector": "Healthcare",
+      "currency": "USD"
+    },
+    {
+      "symbol": "BAC",
+      "name": "Bank of America Corporation",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "KO",
+      "name": "The Coca-Cola Company",
+      "market": "US",
+      "sector": "Consumer Defensive",
+      "currency": "USD"
+    },
+    {
+      "symbol": "PEP",
+      "name": "PepsiCo, Inc.",
+      "market": "US",
+      "sector": "Consumer Defensive",
+      "currency": "USD"
+    },
+    {
+      "symbol": "MRK",
+      "name": "Merck & Co., Inc.",
+      "market": "US",
+      "sector": "Healthcare",
+      "currency": "USD"
+    },
+    {
+      "symbol": "CVX",
+      "name": "Chevron Corporation",
+      "market": "US",
+      "sector": "Energy",
+      "currency": "USD"
+    },
+    {
+      "symbol": "NFLX",
+      "name": "Netflix, Inc.",
+      "market": "US",
+      "sector": "Communication Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "ADBE",
+      "name": "Adobe Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "CRM",
+      "name": "Salesforce, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "AMD",
+      "name": "Advanced Micro Devices, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "INTC",
+      "name": "Intel Corporation",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "CSCO",
+      "name": "Cisco Systems, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "QCOM",
+      "name": "QUALCOMM Incorporated",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "TXN",
+      "name": "Texas Instruments Incorporated",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "IBM",
+      "name": "International Business Machines Corporation",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "MU",
+      "name": "Micron Technology, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "AMAT",
+      "name": "Applied Materials, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "PLTR",
+      "name": "Palantir Technologies Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "UBER",
+      "name": "Uber Technologies, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "ABNB",
+      "name": "Airbnb, Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "SHOP",
+      "name": "Shopify Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "PYPL",
+      "name": "PayPal Holdings, Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "DIS",
+      "name": "The Walt Disney Company",
+      "market": "US",
+      "sector": "Communication Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "NKE",
+      "name": "NIKE, Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "MCD",
+      "name": "McDonald's Corporation",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "SBUX",
+      "name": "Starbucks Corporation",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "BA",
+      "name": "The Boeing Company",
+      "market": "US",
+      "sector": "Industrials",
+      "currency": "USD"
+    },
+    {
+      "symbol": "CAT",
+      "name": "Caterpillar Inc.",
+      "market": "US",
+      "sector": "Industrials",
+      "currency": "USD"
+    },
+    {
+      "symbol": "GE",
+      "name": "GE Aerospace",
+      "market": "US",
+      "sector": "Industrials",
+      "currency": "USD"
+    },
+    {
+      "symbol": "GM",
+      "name": "General Motors Company",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "F",
+      "name": "Ford Motor Company",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "T",
+      "name": "AT&T Inc.",
+      "market": "US",
+      "sector": "Communication Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "VZ",
+      "name": "Verizon Communications Inc.",
+      "market": "US",
+      "sector": "Communication Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "TMUS",
+      "name": "T-Mobile US, Inc.",
+      "market": "US",
+      "sector": "Communication Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "PFE",
+      "name": "Pfizer Inc.",
+      "market": "US",
+      "sector": "Healthcare",
+      "currency": "USD"
+    },
+    {
+      "symbol": "WFC",
+      "name": "Wells Fargo & Company",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "C",
+      "name": "Citigroup Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "GS",
+      "name": "The Goldman Sachs Group, Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "MS",
+      "name": "Morgan Stanley",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "AXP",
+      "name": "American Express Company",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "SCHW",
+      "name": "The Charles Schwab Corporation",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "BLK",
+      "name": "BlackRock, Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "SPGI",
+      "name": "S&P Global Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "COIN",
+      "name": "Coinbase Global, Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "HOOD",
+      "name": "Robinhood Markets, Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "SOFI",
+      "name": "SoFi Technologies, Inc.",
+      "market": "US",
+      "sector": "Financial Services",
+      "currency": "USD"
+    },
+    {
+      "symbol": "RIVN",
+      "name": "Rivian Automotive, Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "LCID",
+      "name": "Lucid Group, Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "SNOW",
+      "name": "Snowflake Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "CRWD",
+      "name": "CrowdStrike Holdings, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "PANW",
+      "name": "Palo Alto Networks, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "NOW",
+      "name": "ServiceNow, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "INTU",
+      "name": "Intuit Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "ARM",
+      "name": "Arm Holdings plc",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "SMCI",
+      "name": "Super Micro Computer, Inc.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "TSM",
+      "name": "Taiwan Semiconductor Manufacturing Company Limited",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "ASML",
+      "name": "ASML Holding N.V.",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "BABA",
+      "name": "Alibaba Group Holding Limited",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "PDD",
+      "name": "PDD Holdings Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "NIO",
+      "name": "NIO Inc.",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "SE",
+      "name": "Sea Limited",
+      "market": "US",
+      "sector": "Consumer Cyclical",
+      "currency": "USD"
+    },
+    {
+      "symbol": "GRAB",
+      "name": "Grab Holdings Limited",
+      "market": "US",
+      "sector": "Technology",
+      "currency": "USD"
+    },
+    {
+      "symbol": "TLK",
+      "name": "Perusahaan Perseroan (Persero) PT Telekomunikasi Indonesia Tbk",
+      "market": "US",
+      "sector": "Communication Services",
+      "currency": "USD"
+    }
+  ]
+}

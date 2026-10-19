@@ -1,4 +1,4 @@
-import type { Candle, Market, Timeframe } from "@/lib/domain/schemas";
+import type { Candle, Market, StockInfo, Timeframe } from "@/lib/domain/schemas";
 
 /**
  * Pure helpers for the Yahoo Finance / Google News providers. Kept free of
@@ -150,4 +150,29 @@ export function parseRss(xml: string): RssItem[] {
     items.push({ title, link, publishedAt, publisher: publisher || "Google News" });
   }
   return items;
+}
+
+/* ------------------------------------------------------------------ */
+/* Symbol directory search                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Rank directory entries for autocomplete: exact code, then code prefix,
+ * then name containing the query (3+ characters). An empty query returns the directory in
+ * its curated order.
+ */
+export function searchDirectory(items: StockInfo[], query: string, market: Market | undefined, limit: number): StockInfo[] {
+  const q = query.trim().toUpperCase();
+  const pool = items.filter((s) => !market || s.market === market);
+  if (!q) return pool.slice(0, limit);
+  const scored: [number, StockInfo][] = [];
+  for (const s of pool) {
+    const nameHit = q.length >= 3 && s.name.toUpperCase().includes(q);
+    const score = s.symbol === q ? 0 : s.symbol.startsWith(q) ? 1 : nameHit ? 2 : -1;
+    if (score >= 0) scored.push([score, s]);
+  }
+  return scored
+    .sort((a, b) => a[0] - b[0] || a[1].symbol.localeCompare(b[1].symbol))
+    .slice(0, limit)
+    .map(([, s]) => s);
 }

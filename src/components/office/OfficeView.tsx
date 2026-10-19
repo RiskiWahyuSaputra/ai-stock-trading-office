@@ -2,7 +2,7 @@
 
 import { Box, Crosshair, LayoutGrid, Maximize2, Radar } from "lucide-react";
 import dynamic from "next/dynamic";
-import { Component, useSyncExternalStore, type ReactNode } from "react";
+import { Component, useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { useOffice } from "@/lib/store/office-store";
 import type { AgentId } from "@/lib/domain/schemas";
 import { cn } from "@/lib/utils";
@@ -64,6 +64,9 @@ export function OfficeView({
   const { followActive, setFollow, focusOn } = useOfficeCamera();
   // null on the server; detected once on the client.
   const webgl = useSyncExternalStore(noopSubscribe, detectWebGL, () => null);
+
+  // Leaving the office (e.g. fly-to-report) should not leave the camera parked.
+  useEffect(() => () => useOfficeCamera.getState().focusOn(null), []);
 
   const open = (id: AgentId) => {
     selectAgent(id);

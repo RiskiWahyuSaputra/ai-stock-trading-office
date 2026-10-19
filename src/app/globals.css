@@ -76,3 +76,19 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Smooth hand-off when moving from the office to a dashboard page. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.35s ease-out both;
+}

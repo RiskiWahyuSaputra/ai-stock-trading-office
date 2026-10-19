@@ -27,12 +27,12 @@ export const DEFAULT_VIEW = {
 export function focusView(id: AgentId) {
   const { position, rotation } = DESKS[id];
   const [x, , z] = position;
-  const dist = id === "officer" ? 4.6 : 3.6;
-  const side = 1.4;
+  const dist = id === "officer" ? 5.2 : 4.3;
+  const side = 1.6;
   const cx = x + Math.sin(rotation) * dist + Math.cos(rotation) * side;
   const cz = z + Math.cos(rotation) * dist - Math.sin(rotation) * side;
   return {
-    position: [cx, 3.1, cz] as [number, number, number],
+    position: [cx, 3.4, cz] as [number, number, number],
     target: [x - Math.sin(rotation) * 0.4, 1.1, z - Math.cos(rotation) * 0.4] as [number, number, number],
   };
 }

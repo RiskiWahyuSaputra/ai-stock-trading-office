@@ -1,7 +1,9 @@
+import { OfficeView } from "@/components/office/OfficeView";
+
 export default function Home() {
   return (
-    <main className="flex h-full items-center justify-center">
-      <p className="text-muted">AI Stock Trading Office — setting up…</p>
-    </main>
+    <div className="h-full p-4">
+      <OfficeView className="h-full" />
+    </div>
   );
 }

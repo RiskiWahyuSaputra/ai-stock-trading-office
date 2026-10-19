@@ -1,0 +1,289 @@
+"use client";
+
+import {
+  CameraControls,
+  ContactShadows,
+  PerformanceMonitor,
+} from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
+import { AGENT_ORDER } from "@/lib/domain/agents";
+import type { AgentId } from "@/lib/domain/schemas";
+import { useOffice } from "@/lib/store/office-store";
+import { useOfficeCamera } from "./camera-store";
+import { EmployeeDesk } from "./EmployeeDesk";
+import { DEFAULT_VIEW, focusView, ROOM } from "./layout";
+import { NameTags } from "./NameTags";
+import { tagAnchor, tagElements } from "./tag-anchors";
+
+function Room() {
+  const { width: W, depth: D, height: H } = ROOM;
+  return (
+    <group>
+      {/* Floor */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[W, D]} />
+        <meshStandardMaterial color="#1a2438" roughness={0.8} />
+      </mesh>
+      {/* Floor tiles */}
+      <gridHelper
+        args={[W, 16, "#24314d", "#202b44"]}
+        position={[0, 0.002, 0]}
+      />
+      {/* Rug under the analyst pod */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0.004, 1.8]}
+        receiveShadow
+      >
+        <planeGeometry args={[11.5, 3.6]} />
+        <meshStandardMaterial color="#223050" roughness={1} />
+      </mesh>
+      {/* Officer platform */}
+      <mesh position={[0, 0.05, -2.6]} receiveShadow castShadow>
+        <boxGeometry args={[5, 0.1, 3]} />
+        <meshStandardMaterial color="#182238" roughness={0.7} />
+      </mesh>
+
+      {/* Back wall with city windows */}
+      <mesh position={[0, H / 2, -D / 2]} receiveShadow>
+        <planeGeometry args={[W, H]} />
+        <meshStandardMaterial color="#18213a" roughness={0.9} />
+      </mesh>
+      {[-5.5, 5.5].map((x) => (
+        <group key={x} position={[x, 2.2, -D / 2 + 0.02]}>
+          <mesh>
+            <planeGeometry args={[4, 2.4]} />
+            <meshBasicMaterial color="#0b1a33" toneMapped={false} />
+          </mesh>
+          {Array.from({ length: 18 }, (_, i) => (
+            <mesh
+              key={i}
+              position={[
+                -1.7 + (i % 9) * 0.42,
+                -1.05 + ((i * 7) % 5) * 0.12 + 0.25,
+                0.005,
+              ]}
+            >
+              <planeGeometry args={[0.28, 0.5 + ((i * 13) % 7) * 0.18]} />
+              <meshBasicMaterial
+                color={i % 4 === 0 ? "#1d3b66" : "#132a4a"}
+                toneMapped={false}
+              />
+            </mesh>
+          ))}
+          {[-1, 0, 1].map((m) => (
+            <mesh key={m} position={[m * 1.33, 0, 0.01]}>
+              <boxGeometry args={[0.04, 2.4, 0.02]} />
+              <meshStandardMaterial color="#1f2b44" />
+            </mesh>
+          ))}
+        </group>
+      ))}
+      {/* Company sign */}
+      <mesh position={[0, 3.75, -D / 2 + 0.03]}>
+        <planeGeometry args={[3.2, 0.06]} />
+        <meshBasicMaterial color="#22d3ee" toneMapped={false} />
+      </mesh>
+
+      {/* Left wall */}
+      <mesh
+        position={[-W / 2, H / 2, 0]}
+        rotation={[0, Math.PI / 2, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[D, H]} />
+        <meshStandardMaterial color="#151e33" roughness={0.9} />
+      </mesh>
+      {/* Glass partition behind the officer */}
+      <mesh position={[-3.2, 1.2, -1.1]} rotation={[0, 0, 0]}>
+        <boxGeometry args={[1.6, 2.4, 0.03]} />
+        <meshStandardMaterial
+          color="#5fb7d9"
+          transparent
+          opacity={0.08}
+          roughness={0.1}
+          metalness={0.2}
+        />
+      </mesh>
+      <mesh position={[3.2, 1.2, -1.1]}>
+        <boxGeometry args={[1.6, 2.4, 0.03]} />
+        <meshStandardMaterial
+          color="#5fb7d9"
+          transparent
+          opacity={0.08}
+          roughness={0.1}
+          metalness={0.2}
+        />
+      </mesh>
+
+      {/* Plants */}
+      {[
+        [-7, -5],
+        [7, -5],
+        [-7, 4.6],
+        [6.8, 4.4],
+      ].map(([x, z]) => (
+        <group key={`${x}${z}`} position={[x, 0, z]}>
+          <mesh position={[0, 0.25, 0]} castShadow>
+            <cylinderGeometry args={[0.25, 0.2, 0.5, 14]} />
+            <meshStandardMaterial color="#2a3550" />
+          </mesh>
+          <mesh position={[0, 0.85, 0]} castShadow>
+            <icosahedronGeometry args={[0.48, 1]} />
+            <meshStandardMaterial color="#1f6f4a" roughness={0.9} flatShading />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Coffee/meeting table */}
+      <group position={[5.6, 0, -3.6]}>
+        <mesh position={[0, 0.72, 0]} castShadow receiveShadow>
+          <cylinderGeometry args={[0.8, 0.8, 0.05, 28]} />
+          <meshStandardMaterial color="#2a3550" roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0.36, 0]}>
+          <cylinderGeometry args={[0.06, 0.12, 0.72, 10]} />
+          <meshStandardMaterial color="#151c2c" />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+function CameraRig() {
+  const controls = useRef<CameraControls>(null);
+  const focus = useOfficeCamera((s) => s.focus);
+  const nonce = useOfficeCamera((s) => s.nonce);
+  const followActive = useOfficeCamera((s) => s.followActive);
+  const activeAgent = useOffice((s) =>
+    s.run?.phase === "running" ? s.activeAgent : null,
+  );
+
+  const target: AgentId | null = focus ?? (followActive ? activeAgent : null);
+
+  useEffect(() => {
+    const c = controls.current;
+    if (!c) return;
+    const v = target ? focusView(target) : DEFAULT_VIEW;
+    void c.setLookAt(...v.position, ...v.target, true);
+  }, [target, nonce]);
+
+  return (
+    <CameraControls
+      ref={controls}
+      makeDefault
+      minDistance={3}
+      maxDistance={24}
+      minPolarAngle={0.25}
+      maxPolarAngle={1.35}
+      smoothTime={0.6}
+      draggingSmoothTime={0.15}
+    />
+  );
+}
+
+/** Projects each desk's tag anchor to screen space and moves the DOM tag. */
+function TagProjector() {
+  const anchors = useMemo(
+    () =>
+      AGENT_ORDER.map(
+        (id) => [id, new THREE.Vector3(...tagAnchor(id))] as const,
+      ),
+    [],
+  );
+  const v = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ camera, size }) => {
+    for (const [id, anchor] of anchors) {
+      const el = tagElements.get(id);
+      if (!el) continue;
+      v.copy(anchor).project(camera);
+      const visible = v.z < 1 && Math.abs(v.x) < 1.2 && Math.abs(v.y) < 1.2;
+      el.style.visibility = visible ? "visible" : "hidden";
+      if (!visible) continue;
+      const x = ((v.x + 1) / 2) * size.width;
+      const y = ((1 - v.y) / 2) * size.height;
+      const dist = camera.position.distanceTo(anchor);
+      const scale = THREE.MathUtils.clamp(11 / dist, 0.6, 1);
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+      el.style.zIndex = String(Math.round(1000 - dist * 10));
+    }
+  });
+  return null;
+}
+
+/**
+ * The interactive 3D office. Loaded client-side only (WebGL); see OfficeView
+ * for the 2D fallback.
+ */
+export default function OfficeScene({
+  onOpenAgent,
+}: {
+  onOpenAgent: (id: AgentId) => void;
+}) {
+  const [dpr, setDpr] = useState(1.5);
+  return (
+    <div className="relative h-full w-full">
+      <Canvas
+        shadows={{ type: THREE.PCFShadowMap }}
+        dpr={dpr}
+        camera={{
+          position: DEFAULT_VIEW.position,
+          fov: 40,
+          near: 0.1,
+          far: 80,
+        }}
+        gl={{ antialias: true, powerPreference: "high-performance" }}
+        onPointerMissed={() => useOffice.getState().selectAgent(null)}
+      >
+        <PerformanceMonitor
+          onDecline={() => setDpr(1)}
+          onIncline={() => setDpr(1.5)}
+        />
+        <color attach="background" args={["#070b16"]} />
+        <fog attach="fog" args={["#070b16", 22, 40]} />
+        <hemisphereLight args={["#b9c8ff", "#1a2235", 1.1]} />
+        <ambientLight intensity={0.45} />
+        <directionalLight
+          position={[6, 10, 6]}
+          intensity={1.8}
+          castShadow
+          shadow-mapSize={[1024, 1024]}
+          shadow-camera-left={-9}
+          shadow-camera-right={9}
+          shadow-camera-top={9}
+          shadow-camera-bottom={-9}
+          shadow-bias={-0.0005}
+        />
+        <pointLight
+          position={[0, 3.6, 1]}
+          intensity={8}
+          distance={14}
+          color="#dbe8ff"
+        />
+        <pointLight
+          position={[0, 3.4, -3]}
+          intensity={4}
+          distance={8}
+          color="#bff3ff"
+        />
+        <Room />
+        <ContactShadows
+          position={[0, 0.01, 0]}
+          scale={18}
+          blur={2.2}
+          opacity={0.45}
+          far={2}
+          frames={1}
+        />
+        {AGENT_ORDER.map((id) => (
+          <EmployeeDesk key={id} id={id} onOpen={onOpenAgent} />
+        ))}
+        <CameraRig />
+        <TagProjector />
+      </Canvas>
+      <NameTags onOpen={onOpenAgent} />
+    </div>
+  );
+}

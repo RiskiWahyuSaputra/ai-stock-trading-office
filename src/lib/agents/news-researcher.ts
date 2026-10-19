@@ -75,7 +75,8 @@ export function runNewsResearch(items: NewsItem[], source: NewsReport["source"],
         `Skor sentimen tertimbang ${sentimentScore >= 0 ? "+" : ""}${sentimentScore.toFixed(2)} (${sentiment}).`;
 
   return {
-    items: enriched.map(({ _score: _ignored, ...rest }) => rest),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    items: enriched.map(({ _score, ...rest }) => rest),
     sentiment,
     sentimentScore,
     summary,

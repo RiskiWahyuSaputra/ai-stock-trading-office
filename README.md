@@ -2,7 +2,18 @@
 
 Kantor virtual 3D berisi tim analis saham AI. Pengguna berperan sebagai CEO yang memberi tugas analisis, lalu melihat lima karyawan AI mengerjakannya secara langsung, dari riset berita sampai laporan final berisi entry, stop loss, take profit, dan risk/reward.
 
-> **Penting:** aplikasi ini hanya menghasilkan analisis informasional. Tidak ada eksekusi transaksi. Secara default semua data adalah **DEMO (simulasi)** dan diberi label jelas di seluruh UI.
+> **Penting:** aplikasi ini hanya menghasilkan analisis informasional. Tidak ada eksekusi transaksi.
+
+## Sumber data
+
+| Data | Default | Catatan |
+|---|---|---|
+| Harga & candle (IDX + US) | **Yahoo Finance** via `yahoo-finance2` | Data asli, **delayed** oleh bursa (IDX ±10 menit). API tidak resmi, tanpa API key, bisa berubah sewaktu-waktu. |
+| Berita saham US | Yahoo Finance News | Hanya judul, penerbit, waktu, dan tautan. |
+| Berita saham IDX | Google News RSS (bahasa Indonesia) | Judul berita yang menyebut kode saham, 7 hari terakhir. |
+| Mode offline | Simulator DEMO | `MARKET_DATA_PROVIDER=demo`, `NEWS_PROVIDER=demo`. Semua nilai diberi label DEMO. |
+
+Tidak ada fallback diam-diam: jika Yahoo atau Google gagal, analisis dihentikan dengan pesan error. Aplikasi tidak beralih ke data simulasi tanpa pemberitahuan. Harga diambil saat dibutuhkan (tidak di-stream), sehingga price alert tetap nonaktif.
 
 ## Fitur
 
@@ -51,13 +62,13 @@ npm test           # unit test (vitest)
 npm run lint && npm run typecheck && npm run build
 ```
 
-## Menghubungkan data asli
+## Menambah provider lain
 
 1. Implementasikan `MarketDataProvider` / `NewsProvider` (`src/server/providers/types.ts`).
 2. Daftarkan di `src/server/providers/index.ts`.
 3. Atur `MARKET_DATA_PROVIDER` / `NEWS_PROVIDER` serta API key di `.env.local` (lihat `.env.example`). Secret hanya dibaca di server.
 
-Integrasi LLM belum diimplementasikan. Sentimen berita saat ini memakai leksikon berbasis aturan, dan statusnya ditampilkan di Settings. Fungsi `classify` di `news-researcher.ts` adalah titik penggantinya.
+Integrasi LLM belum diimplementasikan. Sentimen berita memakai leksikon kata kunci bahasa Inggris dan Indonesia yang hanya menilai judul, sehingga konteks dan negasi tidak dipahami. Beberapa artikel tentang peristiwa yang sama juga masih dihitung terpisah. Fungsi `classify` di `news-researcher.ts` adalah titik penggantinya.
 
 ## Stack
 

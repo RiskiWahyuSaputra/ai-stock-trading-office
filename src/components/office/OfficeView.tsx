@@ -79,7 +79,7 @@ export function OfficeView({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl border border-line bg-bg",
+        "relative isolate overflow-hidden rounded-xl border border-line bg-bg",
         className,
       )}
     >

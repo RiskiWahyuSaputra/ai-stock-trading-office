@@ -29,7 +29,7 @@ export function TopNav({ onMenu }: { onMenu: () => void }) {
   const demo = provider.status?.market.isDemo ?? true;
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-line bg-bg-elevated/80 px-3 backdrop-blur sm:px-4">
+    <header className="relative z-20 flex h-14 shrink-0 items-center gap-3 border-b border-line bg-bg-elevated/80 px-3 backdrop-blur sm:px-4">
       <button className="rounded-lg p-2 text-muted hover:bg-panel lg:hidden" onClick={onMenu} aria-label="Buka menu">
         <Menu className="size-5" />
       </button>

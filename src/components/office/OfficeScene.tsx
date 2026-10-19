@@ -205,7 +205,9 @@ function TagProjector() {
       const x = ((v.x + 1) / 2) * size.width;
       const y = ((1 - v.y) / 2) * size.height;
       const dist = camera.position.distanceTo(anchor);
-      const scale = THREE.MathUtils.clamp(11 / dist, 0.6, 1);
+      // Shrink tags on small canvases so they do not bury the characters.
+      const fit = THREE.MathUtils.clamp(size.width / 1000, 0.55, 1);
+      const scale = THREE.MathUtils.clamp(11 / dist, 0.6, 1) * fit;
       el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
       el.style.zIndex = String(Math.round(1000 - dist * 10));
     }

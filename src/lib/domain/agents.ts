@@ -18,7 +18,7 @@ export interface AgentProfile {
 export const AGENTS: Record<AgentId, AgentProfile> = {
   news: {
     id: "news",
-    name: "Nadia",
+    name: "PS",
     title: "News Researcher AI",
     role: "Riset fundamental & berita pasar",
     color: "#60a5fa",
@@ -34,7 +34,7 @@ export const AGENTS: Record<AgentId, AgentProfile> = {
   },
   technical: {
     id: "technical",
-    name: "Tomo",
+    name: "Kikio",
     title: "Technical Analyst AI",
     role: "Analisis tren, indikator & level harga",
     color: "#22d3ee",
@@ -50,7 +50,7 @@ export const AGENTS: Record<AgentId, AgentProfile> = {
   },
   risk: {
     id: "risk",
-    name: "Rafael",
+    name: "Kiyu",
     title: "Risk Manager AI",
     role: "Kelayakan & manajemen risiko",
     color: "#f59e0b",
@@ -66,7 +66,7 @@ export const AGENTS: Record<AgentId, AgentProfile> = {
   },
   reviewer: {
     id: "reviewer",
-    name: "Sena",
+    name: "Kisa",
     title: "Signal Reviewer AI",
     role: "Supervisor konsistensi antar-agen",
     color: "#a78bfa",
@@ -82,7 +82,7 @@ export const AGENTS: Record<AgentId, AgentProfile> = {
   },
   officer: {
     id: "officer",
-    name: "Fajar",
+    name: "Kisaki",
     title: "Final Signal Officer AI",
     role: "Laporan final & notifikasi",
     color: "#22c55e",

@@ -46,11 +46,15 @@ export function scoreConfidence(
   if (mainRR !== undefined) f(`R/R target utama ${mainRR.toFixed(2)}`, mainRR >= risk.minRiskReward ? 15 : -10);
   if (risk.volatilityPct !== null && risk.volatilityPct > HIGH_VOL_PCT[technical.timeframe]) f("Volatilitas tinggi", -10);
   if (risk.maxGapPct !== null && risk.maxGapPct > HIGH_GAP_PCT[technical.timeframe]) f("Riwayat gap besar", -5);
+  if (risk.status === "caution") f("Risk Manager: perlu perhatian", -20);
+  if (risk.status === "rejected") f("Risk Manager: skenario ditolak", -30);
   const failed = review.checks.filter((c) => !c.passed).length;
   if (failed) f(`${failed} pemeriksaan reviewer gagal`, -8 * failed);
 
   // Capped at 90: no combination of checks justifies presenting near-certainty.
-  const score = Math.max(0, Math.min(90, 35 + factors.reduce((s, x) => s + x.impact, 0)));
+  // A setup the reviewer has not approved can never read as "high".
+  const cap = review.verdict === "approved" ? 90 : 55;
+  const score = Math.max(0, Math.min(cap, 35 + factors.reduce((s, x) => s + x.impact, 0)));
   const label = score >= 70 ? "high" : score >= 45 ? "moderate" : "low";
   return {
     score,

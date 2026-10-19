@@ -86,47 +86,80 @@ function round(v: number, d: number) {
   return Math.round(v * f) / f;
 }
 
-/**
- * Simulate `limit` candles ending at `now`. The series is generated from a
- * fixed history length so that a shorter `limit` is a suffix of a longer one
- * (consistent across agents within the same day).
- */
-function simulate(stock: DemoStock, timeframe: Timeframe, limit: number, now: number): Candle[] {
-  const HISTORY = 400;
-  const n = Math.min(Math.max(limit, 2), HISTORY);
-  const day = Math.floor(now / 86_400_000);
-  const rand = mulberry32(hashString(`${stock.symbol}|${timeframe}|${day}`));
-  const stepVol = stock.vol / Math.sqrt(BARS_PER_YEAR[timeframe]);
-  // Regime: a slowly changing drift so charts show real trends and ranges.
-  let drift = (rand() - 0.5) * stepVol * 0.6;
-  let price = stock.basePrice * (0.8 + rand() * 0.4);
-  const interval = TIMEFRAME_MS[timeframe];
-  const end = Math.floor(now / interval) * interval;
-  const candles: Candle[] = [];
+const HOUR = 3_600_000;
+const MAX_BARS = 400;
+const HISTORY_HOURS = MAX_BARS * 168 + 168;
+const cache = new Map<string, Candle[]>();
 
-  for (let i = 0; i < HISTORY; i++) {
-    if (rand() < 0.03) drift = (rand() - 0.5) * stepVol * 0.6;
-    const gap = rand() < 0.04 ? gaussian(rand) * stepVol * 1.5 : 0;
-    const open = price * (1 + gap);
-    const ret = drift + gaussian(rand) * stepVol;
-    const close = Math.max(open * (1 + ret), 1);
-    const wick = Math.abs(gaussian(rand)) * stepVol * 0.5;
-    const high = Math.max(open, close) * (1 + wick);
-    const low = Math.min(open, close) * (1 - Math.abs(gaussian(rand)) * stepVol * 0.5);
-    const volume = Math.round((1 + Math.abs(gaussian(rand))) * (stock.market === "IDX" ? 5e6 : 2e6));
-    const time = end - (HISTORY - 1 - i) * interval;
-    const t = (p: number, m: "up" | "down" | "nearest") => roundToTick(p, stock.market, m);
-    const o = t(open, "nearest");
-    const c = t(close, "nearest");
-    candles.push({
-      time,
+/**
+ * One hourly path per symbol per day; every timeframe is aggregated from it,
+ * so 1h/4h/1D/1W candles and the quote always agree with each other.
+ * The path is generated forward as a mean-reverting log-price process with
+ * slowly changing drift regimes and rare jumps, then anchored so the latest
+ * close sits near the symbol's base price.
+ */
+function hourlyPath(stock: DemoStock, now: number): Candle[] {
+  const day = Math.floor(now / 86_400_000);
+  const end = Math.floor(now / HOUR) * HOUR;
+  const key = `${stock.symbol}|${day}|${end}`;
+  const hit = cache.get(key);
+  if (hit) return hit;
+  for (const k of cache.keys()) if (k.startsWith(`${stock.symbol}|`)) cache.delete(k);
+
+  const rand = mulberry32(hashString(`${stock.symbol}|${day}`));
+  const sigma = stock.vol / Math.sqrt(BARS_PER_YEAR["1h"] * 4);
+  const theta = 1 / (HISTORY_HOURS / 6);
+  let drift = 0;
+  let x = 0;
+  const logs: { o: number; h: number; l: number; c: number }[] = [];
+  for (let i = 0; i < HISTORY_HOURS; i++) {
+    if (rand() < 0.002) drift = (rand() - 0.5) * sigma * 0.25;
+    const jump = rand() < 0.0015 ? gaussian(rand) * sigma * 12 : 0;
+    const o = x + jump;
+    const c = o + theta * (0 - o) + drift + gaussian(rand) * sigma;
+    const h = Math.max(o, c) + Math.abs(gaussian(rand)) * sigma * 0.6;
+    const l = Math.min(o, c) - Math.abs(gaussian(rand)) * sigma * 0.6;
+    logs.push({ o, h, l, c });
+    x = c;
+  }
+  const anchor = stock.basePrice * (0.85 + rand() * 0.3);
+  const shift = Math.log(anchor) - x;
+  const t = (v: number, m: "up" | "down" | "nearest") => roundToTick(Math.max(Math.exp(v + shift), 1), stock.market, m);
+  const baseVol = stock.market === "IDX" ? 8e5 : 3e5;
+  const out: Candle[] = logs.map((b, i) => {
+    const o = t(b.o, "nearest");
+    const c = t(b.c, "nearest");
+    return {
+      time: end - (HISTORY_HOURS - 1 - i) * HOUR,
       open: o,
       close: c,
-      high: Math.max(t(high, "up"), o, c),
-      low: Math.min(t(low, "down"), o, c),
-      volume,
-    });
-    price = close;
+      high: Math.max(t(b.h, "up"), o, c),
+      low: Math.min(t(b.l, "down"), o, c),
+      volume: Math.round(baseVol * (1 + Math.abs(gaussian(rand)) + Math.abs(b.c - b.o) / sigma)),
+    };
+  });
+  cache.set(key, out);
+  return out;
+}
+
+/** Aggregate the hourly path into `limit` candles of the given timeframe. */
+function simulate(stock: DemoStock, timeframe: Timeframe, limit: number, now: number): Candle[] {
+  const hourly = hourlyPath(stock, now);
+  const interval = TIMEFRAME_MS[timeframe];
+  const n = Math.min(Math.max(limit, 1), MAX_BARS);
+  if (interval === HOUR) return hourly.slice(-n);
+  const out: Candle[] = [];
+  for (const h of hourly) {
+    const bucket = Math.floor(h.time / interval) * interval;
+    const cur = out[out.length - 1];
+    if (!cur || cur.time !== bucket) {
+      out.push({ ...h, time: bucket });
+    } else {
+      cur.high = Math.max(cur.high, h.high);
+      cur.low = Math.min(cur.low, h.low);
+      cur.close = h.close;
+      cur.volume += h.volume;
+    }
   }
-  return candles.slice(HISTORY - n);
+  return out.slice(-n);
 }

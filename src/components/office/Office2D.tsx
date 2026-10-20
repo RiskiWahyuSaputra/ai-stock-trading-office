@@ -20,9 +20,18 @@ export function Office2D({
   const active = useOffice((s) =>
     s.run?.phase === "running" ? s.activeAgent : null,
   );
+  const handoff = useOffice((s) => s.handoff);
 
   return (
     <div className="grid h-full content-center gap-3 overflow-y-auto bg-[radial-gradient(ellipse_at_top,#0f1a30,transparent_70%)] p-4 sm:grid-cols-2 xl:grid-cols-3">
+      {handoff && (
+        <p key={handoff.id} className="page-enter rounded-lg border border-line bg-panel-2 px-3 py-2 text-xs text-muted sm:col-span-2 xl:col-span-3">
+          <span className="font-semibold" style={{ color: AGENTS[handoff.from].color }}>{AGENTS[handoff.from].name}</span>
+          {" → "}
+          <span className="font-semibold" style={{ color: AGENTS[handoff.to].color }}>{AGENTS[handoff.to].name}</span>
+          <span className="text-subtle"> · {handoff.symbol}</span>: {handoff.message}
+        </p>
+      )}
       {AGENT_ORDER.map((id) => {
         const p = AGENTS[id];
         const a = agents[id];

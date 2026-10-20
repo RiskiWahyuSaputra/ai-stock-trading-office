@@ -8,12 +8,12 @@ import {
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { AGENT_ORDER } from "@/lib/domain/agents";
+import { AGENT_ORDER, AGENTS } from "@/lib/domain/agents";
 import type { AgentId } from "@/lib/domain/schemas";
 import { useOffice } from "@/lib/store/office-store";
 import { useOfficeCamera } from "./camera-store";
 import { EmployeeDesk } from "./EmployeeDesk";
-import { DEFAULT_VIEW, focusView, ROOM } from "./layout";
+import { DEFAULT_VIEW, DESKS, focusView, ROOM } from "./layout";
 import { NameTags } from "./NameTags";
 import { tagAnchor, tagElements } from "./tag-anchors";
 
@@ -152,6 +152,44 @@ function Room() {
   );
 }
 
+const HANDOFF_MS = 1_100;
+
+/**
+ * A glowing report sheet that flies along an arc from one desk to the next
+ * whenever an agent hands its finished output over (a real `handoff` event).
+ */
+function HandoffPacket() {
+  const handoff = useOffice((s) => s.handoff);
+  const ref = useRef<THREE.Group>(null);
+  const started = useRef<{ id: string; at: number } | null>(null);
+
+  useFrame(({ clock }) => {
+    const g = ref.current;
+    if (!g || !handoff) return;
+    if (started.current?.id !== handoff.id) started.current = { id: handoff.id, at: clock.elapsedTime };
+    const t = (clock.elapsedTime - started.current.at) / (HANDOFF_MS / 1000);
+    g.visible = t < 1;
+    if (!g.visible) return;
+    const e = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+    const [ax, , az] = DESKS[handoff.from].position;
+    const [bx, , bz] = DESKS[handoff.to].position;
+    g.position.set(ax + (bx - ax) * e, 1.3 + Math.sin(Math.PI * e) * 1.6, az + (bz - az) * e);
+    g.rotation.set(-0.4, clock.elapsedTime * 4, Math.sin(clock.elapsedTime * 6) * 0.2);
+  });
+
+  if (!handoff) return null;
+  const color = AGENTS[handoff.from].color;
+  return (
+    <group ref={ref} visible={false}>
+      <mesh castShadow>
+        <boxGeometry args={[0.34, 0.02, 0.44]} />
+        <meshStandardMaterial color="#e6ecf7" emissive={color} emissiveIntensity={0.9} toneMapped={false} />
+      </mesh>
+      <pointLight color={color} intensity={3} distance={2.5} />
+    </group>
+  );
+}
+
 function CameraRig() {
   const controls = useRef<CameraControls>(null);
   const focus = useOfficeCamera((s) => s.focus);
@@ -282,6 +320,7 @@ export default function OfficeScene({
         {AGENT_ORDER.map((id) => (
           <EmployeeDesk key={id} id={id} onOpen={onOpenAgent} />
         ))}
+        <HandoffPacket />
         <CameraRig />
         <TagProjector />
       </Canvas>

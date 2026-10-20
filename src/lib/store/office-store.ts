@@ -26,7 +26,7 @@ export interface ActivityEntry {
   runId: string;
   agent: AgentId | null;
   symbol: string;
-  status: AgentStatus | "run_started" | "run_completed" | "run_failed";
+  status: AgentStatus | "run_started" | "run_completed" | "run_failed" | "handoff";
   message: string;
   /** Server timestamp of the underlying event. */
   at: number;
@@ -82,6 +82,30 @@ export interface PriceAlert {
   inactiveReason?: string;
 }
 
+/** The latest agent-to-agent handoff, animated in the office. */
+export interface Handoff {
+  id: string;
+  from: AgentId;
+  to: AgentId;
+  message: string;
+  symbol: string;
+  at: number;
+}
+
+export interface AutopilotState {
+  phase: "off" | "scanning" | "analyzing" | "resting" | "waiting";
+  symbol?: string;
+  /** Position in the current work queue (1-based) and its length. */
+  position?: number;
+  queueLength?: number;
+  nextAt?: number;
+  /** Why the autopilot is waiting (shown in the office). */
+  reason?: string;
+  cycle: number;
+  /** Screens that ask the autopilot to hold (e.g. the CEO reading their own analysis). */
+  holds: number;
+}
+
 export interface RunState {
   runId: string | null;
   request: AnalysisRequest;
@@ -119,6 +143,8 @@ export interface Settings {
   view: "auto" | "3d" | "2d";
   /** Entry Radar rescans on its own while its page is open and the market is in session. */
   autoScan?: boolean;
+  /** The office works on its own (radar + analyses) while the app is open. Default on. */
+  autopilot?: boolean;
 }
 
 interface OfficeState {
@@ -132,6 +158,8 @@ interface OfficeState {
   notifications: AppNotification[];
   alerts: PriceAlert[];
   screener: ScreenerState | null;
+  handoff: Handoff | null;
+  autopilot: AutopilotState;
   settings: Settings;
   provider: { status: ProviderStatus | null; ok: boolean; checkedAt: number | null; error?: string };
 
@@ -152,6 +180,7 @@ interface OfficeState {
   cancelScreener: () => void;
   /** Store a radar candidate's report with the other final reports; returns its id. */
   saveScreenReport: (item: ScreenItem) => string | null;
+  setAutopilot: (p: Partial<AutopilotState>) => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -205,10 +234,21 @@ export const useOffice = create<OfficeState>()(
               log({ runId: event.runId, agent: event.agent, symbol, status: event.status, message: event.message, at: event.at });
             }
             break;
+          case "handoff":
+            set({ handoff: { id: uid(), from: event.from, to: event.to, message: event.message, symbol, at: event.at } });
+            log({ runId: event.runId, agent: event.from, symbol, status: "handoff", message: `→ ${AGENTS[event.to].name}: ${event.message}`, at: event.at });
+            break;
           case "run_completed": {
             const report = event.report;
+            // Autopilot keeps only its newest report per symbol & timeframe so it never floods history.
+            const superseded = (r: FinalReport) =>
+              r.id === report.id ||
+              (report.request.origin === "autopilot" &&
+                r.request.origin === "autopilot" &&
+                r.request.symbol === report.request.symbol &&
+                r.request.timeframe === report.request.timeframe);
             set((s) => ({
-              reports: [report, ...s.reports.filter((r) => r.id !== report.id)].slice(0, 50),
+              reports: [report, ...s.reports.filter((r) => !superseded(r))].slice(0, 50),
               run: s.run ? { ...s.run, phase: "completed", reportId: report.id } : s.run,
               activeAgent: "officer",
             }));
@@ -219,11 +259,55 @@ export const useOffice = create<OfficeState>()(
           case "run_failed":
             set((s) => ({ run: s.run ? { ...s.run, phase: "failed", error: event.error } : s.run, activeAgent: event.agent }));
             log({ runId: event.runId, agent: event.agent, symbol, status: "run_failed", message: event.error, at: event.at });
-            get().notify({ at: event.at, symbol, kind: "analysis_failed", summary: event.error, urgency: "medium", isDemo: false });
+            if (get().run?.request.origin !== "autopilot") {
+              get().notify({ at: event.at, symbol, kind: "analysis_failed", summary: event.error, urgency: "medium", isDemo: false });
+            }
             break;
         }
       };
 
+      /** Each screened symbol updates the desks that really worked on it. */
+      const radarAgents = (item: ScreenItem, done: number, total: number, at: number) => {
+        const progress = Math.round((done / total) * 100);
+        const symbol = item.stock.symbol;
+        const dir = { bullish: "naik", bearish: "turun", neutral: "netral" }[item.direction];
+        const a = (status: AgentStatus, message: string): AgentState => ({ status, progress, message, updatedAt: at, symbol });
+        const r = item.report;
+        set((s) => ({
+          agents: {
+            ...s.agents,
+            technical: a("analyzing", `Radar ${done}/${total} · ${symbol}: tren ${dir} (${item.trendScore.toFixed(2)}).`),
+            ...(r && {
+              news: a("researching", `Radar · ${symbol}: ${r.news.summary}`),
+              risk: a("risk_checking", `Radar · ${symbol}: status ${r.risk.status}${r.risk.riskReward.length ? `, R/R ${r.risk.riskReward.map((x) => x.toFixed(1)).join("/")}` : ""}.`),
+              reviewer: a("reviewing", `Radar · ${symbol}: ${r.review.verdict.replace("_", " ")} → ${item.plan.timing.replace("_", " ")}.`),
+            }),
+          },
+        }));
+      };
+
+      const radarSummary = (scanId: string, at: number) => {
+        const sc = get().screener;
+        if (!sc) return;
+        const count = (t: ScreenItem["plan"]["timing"]) => sc.items.filter((i) => i.plan.timing === t).length;
+        const summary = `${count("today")} entry hari ini, ${count("next_session")} sesi berikutnya, ${count("later")} dipantau dari ${sc.items.length} saham.`;
+        const done = (status: AgentStatus, message: string): AgentState => ({ status, progress: 100, message, updatedAt: at, symbol: "RADAR" });
+        set((s) => ({
+          agents: {
+            news: { ...s.agents.news, status: "completed", progress: 100 },
+            technical: done("completed", `Radar selesai: ${sc.items.length} grafik dibaca.`),
+            risk: { ...s.agents.risk, status: "completed", progress: 100 },
+            reviewer: { ...s.agents.reviewer, status: "completed", progress: 100 },
+            officer: done("completed", `Radar ${sc.request.market}: ${summary}`),
+          },
+          activeAgent: "officer",
+          handoff: { id: uid(), from: "technical", to: "officer", message: summary, symbol: "RADAR", at },
+        }));
+        log({ runId: scanId, agent: "technical", symbol: "RADAR", status: "handoff", message: `→ ${AGENTS.officer.name}: ${summary}`, at });
+        log({ runId: scanId, agent: "officer", symbol: "RADAR", status: "run_completed", message: `Entry Radar ${sc.request.market} selesai: ${summary}`, at });
+      };
+
+      let lastRadarNotice = "";
       const notifyForScan = () => {
         const sc = get().screener;
         if (!sc) return;
@@ -231,6 +315,10 @@ export const useOffice = create<OfficeState>()(
         const today = list("today");
         const next = list("next_session");
         if (today.length === 0 && next.length === 0) return;
+        // Repeated scans with the same candidates stay quiet.
+        const key = `${sc.request.market}|${today.join()}|${next.join()}`;
+        if (key === lastRadarNotice) return;
+        lastRadarNotice = key;
         const parts = [
           today.length ? `${today.length} bisa entry hari ini (${today.slice(0, 4).join(", ")})` : "",
           next.length ? `${next.length} untuk sesi berikutnya (${next.slice(0, 4).join(", ")})` : "",
@@ -242,6 +330,20 @@ export const useOffice = create<OfficeState>()(
         const symbol = r.request.symbol;
         const { notify, reports } = get();
         const statusText = r.status.replace("_", " ");
+        const prev = reports.find(
+          (p) => p.id !== r.id && p.request.symbol === symbol && p.request.timeframe === r.request.timeframe,
+        );
+        if (r.request.origin === "autopilot") {
+          // Background work only speaks up when something changed: a new setup, or a setup that broke.
+          const actionable = (x?: FinalReport) => x?.status === "BUY_SETUP" || x?.status === "SELL_SETUP";
+          if (actionable(r) && prev?.status !== r.status) {
+            notify({ at: r.createdAt, symbol, kind: "report_ready", summary: `Autopilot: ${statusText} baru — ${r.request.timeframe}, konfluensi ${r.confidence.score}/100.`, urgency: "high", reportId: r.id, isDemo: r.isDemo });
+          }
+          if (prev && actionable(prev) && prev.status !== r.status) {
+            notify({ at: r.createdAt, symbol, kind: "scenario_invalid", summary: `Skenario ${prev.status.replace("_", " ")} sebelumnya tidak lagi valid; status terbaru ${statusText}.`, urgency: "high", reportId: r.id, isDemo: r.isDemo });
+          }
+          return;
+        }
         notify({
           at: r.createdAt,
           symbol,
@@ -262,9 +364,6 @@ export const useOffice = create<OfficeState>()(
           notify({ at: r.createdAt, symbol, kind: "important_news", summary: important.headline, urgency: "medium", reportId: r.id, isDemo: important.source.isDemo });
         }
         // Officer: previous actionable scenario on the same symbol/timeframe no longer holds.
-        const prev = reports.find(
-          (p) => p.id !== r.id && p.request.symbol === symbol && p.request.timeframe === r.request.timeframe,
-        );
         if (prev && (prev.status === "BUY_SETUP" || prev.status === "SELL_SETUP") && prev.status !== r.status) {
           notify({ at: r.createdAt, symbol, kind: "scenario_invalid", summary: `Skenario ${prev.status.replace("_", " ")} sebelumnya tidak lagi valid; status terbaru ${statusText}.`, urgency: "high", reportId: r.id, isDemo: r.isDemo });
         }
@@ -285,6 +384,8 @@ export const useOffice = create<OfficeState>()(
         notifications: [],
         alerts: [],
         screener: null,
+        handoff: null,
+        autopilot: { phase: "off", cycle: 0, holds: 0 },
         settings: {
           market: "IDX",
           timezone: "Asia/Jakarta",
@@ -297,9 +398,15 @@ export const useOffice = create<OfficeState>()(
         provider: { status: null, ok: false, checkedAt: null },
 
         async startAnalysis(req) {
-          if (get().run?.phase === "running") return;
+          const current = get().run;
+          if (current?.phase === "running") {
+            // The CEO's own task always takes priority over background work.
+            if (current.request.origin !== "autopilot" || req.origin === "autopilot") return;
+            get().cancelAnalysis();
+          }
           controller?.abort();
           controller = new AbortController();
+          const signal = controller.signal;
           const { settings } = get();
           const request: AnalysisRequest = {
             ...req,
@@ -310,13 +417,15 @@ export const useOffice = create<OfficeState>()(
           let shownAt = 0;
           let lastWorking = false;
           try {
-            for await (const event of streamAnalysis(request, controller.signal)) {
+            for await (const event of streamAnalysis(request, signal)) {
               if (lastWorking) {
                 const wait = shownAt + MIN_VISIBLE_MS - Date.now();
                 if (wait > 0) await sleep(wait);
               }
+              // A newer run may have replaced this one while we waited.
+              if (signal.aborted) return;
               apply(event, request.symbol);
-              lastWorking = event.type === "agent_status" && isWorking(event.status);
+              lastWorking = (event.type === "agent_status" && isWorking(event.status)) || event.type === "handoff";
               shownAt = Date.now();
             }
             if (get().run?.phase === "running") {
@@ -326,7 +435,7 @@ export const useOffice = create<OfficeState>()(
             if ((err as Error).name === "AbortError") return;
             const message = (err as Error).message || "Gagal menghubungi server.";
             set((s) => ({ run: s.run ? { ...s.run, phase: "failed", error: message } : s.run }));
-            get().notify({ at: Date.now(), symbol: request.symbol, kind: "analysis_failed", summary: message, urgency: "medium", isDemo: false });
+            if (request.origin !== "autopilot") get().notify({ at: Date.now(), symbol: request.symbol, kind: "analysis_failed", summary: message, urgency: "medium", isDemo: false });
           }
         },
 
@@ -419,18 +528,26 @@ export const useOffice = create<OfficeState>()(
             for await (const e of streamScreener(request, screenController.signal)) {
               const cur = get().screener;
               if (!cur) return;
+              const officeFree = get().run?.phase !== "running";
               switch (e.type) {
                 case "scan_started":
                   patch({ scanId: e.scanId, total: e.total, today: e.today, nextDay: e.nextDay, sessionLabel: e.sessionLabel });
+                  if (officeFree) {
+                    set({ agents: idleAgents(), activeAgent: "technical" });
+                    log({ runId: e.scanId, agent: null, symbol: "RADAR", status: "run_started", message: `Entry Radar memindai ${e.total} saham ${req.market}.`, at: e.at });
+                  }
                   break;
-                case "scan_item":
+                case "scan_item": {
                   patch({ done: e.done, total: e.total, items: [...cur.items, e.item], isDemo: cur.isDemo || !!e.item.report?.isDemo });
+                  if (officeFree) radarAgents(e.item, e.done, e.total, e.at);
                   break;
+                }
                 case "scan_error":
                   patch({ done: e.done, total: e.total, errors: [...cur.errors, { symbol: e.symbol, error: e.error }] });
                   break;
                 case "scan_completed":
                   patch({ phase: "completed", finishedAt: e.at, isDemo: e.sources.some((x) => x.isDemo) });
+                  if (officeFree) radarSummary(e.scanId, e.at);
                   notifyForScan();
                   break;
                 case "scan_failed":
@@ -451,6 +568,8 @@ export const useOffice = create<OfficeState>()(
           screenController = null;
           set((s) => ({ screener: s.screener?.phase === "running" ? { ...s.screener, phase: "failed", error: "Dibatalkan oleh pengguna." } : s.screener }));
         },
+
+        setAutopilot: (p) => set((s) => ({ autopilot: { ...s.autopilot, ...p } })),
 
         saveScreenReport(item) {
           const report = item.report;

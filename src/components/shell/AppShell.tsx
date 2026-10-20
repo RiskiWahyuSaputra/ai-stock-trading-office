@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useAutopilot } from "@/lib/store/autopilot";
 import { useOffice } from "@/lib/store/office-store";
 import { Sidebar } from "./Sidebar";
 import { TopNav } from "./TopNav";
@@ -10,6 +11,7 @@ const PROVIDER_POLL_MS = 60_000;
 export function AppShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const checkProvider = useOffice((s) => s.checkProvider);
+  useAutopilot();
 
   useEffect(() => {
     void useOffice.persist.rehydrate();

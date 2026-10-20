@@ -39,6 +39,9 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
     return { type: "agent_status", runId, agent, status: s, progress, message, at: Date.now() };
   };
 
+  /** One agent passing its finished output to the next — real data, real order. */
+  const handoff = (from: AgentId, to: AgentId, message: string): WorkflowEvent => ({ type: "handoff", runId, from, to, message, at: Date.now() });
+
   yield { type: "run_started", runId, request, at: Date.now() };
   for (const a of AGENT_ORDER) yield status(a, "queued", 0, `Menunggu giliran untuk ${request.symbol}.`);
 
@@ -52,6 +55,11 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
     yield status("news", "researching", 60, `${items.length} berita diterima, mengklasifikasi sentimen.`);
     const news: NewsReport = runNewsResearch(items, newsProvider.source);
     yield status("news", "completed", 100, news.summary);
+    yield handoff(
+      "news",
+      "reviewer",
+      `Sentimen ${news.sentiment} (${news.sentimentScore >= 0 ? "+" : ""}${news.sentimentScore.toFixed(2)}), ${news.catalysts.length} katalis, ${news.risks.length} risiko berita.`,
+    );
 
     // 2. Technical Analyst
     yield status("technical", "analyzing", 10, `Mengambil ${CANDLES} candle ${request.timeframe} dan harga terakhir.`);
@@ -63,6 +71,7 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
     yield status("technical", "analyzing", 55, `Menghitung indikator dari ${series.candles.length} candle (${series.source.name}${delay}).`);
     let technical: TechnicalReport = runTechnicalAnalysis(series, request.market, request.mode);
     yield status("technical", "completed", 100, technicalSummary(technical));
+    yield handoff("technical", "risk", technicalSummary(technical));
 
     // 3. Risk Manager
     yield status("risk", "risk_checking", 30, "Memeriksa konsistensi level dan menghitung risk/reward.");
@@ -73,12 +82,14 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
       100,
       riskSummary(risk),
     );
+    yield handoff("risk", "reviewer", riskSummary(risk));
 
     // 4. Signal Reviewer (may return work to the Technical Analyst once)
     yield status("reviewer", "reviewing", 30, "Membandingkan laporan berita, teknikal, dan risiko.");
     let review = runReview({ news, technical, risk, quote });
     if (review.returnedTo.includes("technical")) {
       yield status("reviewer", "needs_attention", 50, "Data teknikal belum memadai — dikembalikan ke Technical Analyst.");
+      yield handoff("reviewer", "technical", `Tolong ulangi dengan ${CANDLES_RECHECK} candle: ${review.checks.filter((c) => !c.passed).map((c) => c.label).join(", ")}.`);
       yield status("technical", "analyzing", 20, `Pemeriksaan ulang dengan ${CANDLES_RECHECK} candle.`);
       [series, quote] = await Promise.all([
         market.getCandles(request.symbol, request.timeframe, CANDLES_RECHECK, request.market),
@@ -98,6 +109,8 @@ export async function* runAnalysisWorkflow(request: AnalysisRequest): AsyncGener
       100,
       `Hasil review: ${review.verdict.replace("_", " ")}${review.conflicts.length ? ` — ${review.conflicts[0].replace(/\.$/, "")}` : ""}.`,
     );
+
+    yield handoff("reviewer", "officer", `Verdict ${review.verdict.replace("_", " ")}; ${review.checks.filter((c) => c.passed).length}/${review.checks.length} pemeriksaan lolos.`);
 
     // 5. Final Signal Officer
     yield status("officer", "finalizing", 50, "Menyusun laporan final.");

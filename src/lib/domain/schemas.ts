@@ -217,6 +217,8 @@ export const AnalysisRequestSchema = z.object({
   mode: AnalysisModeSchema,
   accountSize: z.number().positive().optional(),
   riskPct: z.number().positive().max(10).optional(),
+  /** Who asked: the CEO (manual) or the office autopilot. Does not change the analysis. */
+  origin: z.enum(["manual", "autopilot"]).optional(),
 });
 export type AnalysisRequest = z.infer<typeof AnalysisRequestSchema>;
 
@@ -268,6 +270,14 @@ export const WorkflowEventSchema = z.discriminatedUnion("type", [
     agent: AgentIdSchema,
     status: AgentStatusSchema,
     progress: z.number().min(0).max(100),
+    message: z.string(),
+    at: z.number(),
+  }),
+  z.object({
+    type: z.literal("handoff"),
+    runId: z.string(),
+    from: AgentIdSchema,
+    to: AgentIdSchema,
     message: z.string(),
     at: z.number(),
   }),

@@ -13,6 +13,7 @@ const TONE: Partial<Record<ActivityEntry["status"], string>> = {
   failed: "text-bear",
   run_failed: "text-bear",
   needs_attention: "text-warn",
+  handoff: "text-accent",
 };
 
 /**

@@ -1,7 +1,6 @@
 "use client";
 
-import { Play } from "lucide-react";
-import Link from "next/link";
+import { AutopilotBar } from "@/components/office/AutopilotBar";
 import { EmployeeDetailPanel } from "@/components/office/EmployeeDetailPanel";
 import { OfficeActivityFeed } from "@/components/office/OfficeActivityFeed";
 import { OfficeOverviewPanel } from "@/components/office/OfficeOverviewPanel";
@@ -14,7 +13,6 @@ export default function OfficeOverviewPage() {
   const selected = useOffice((s) => s.selectedAgent);
   const selectAgent = useOffice((s) => s.selectAgent);
   const latest = useOffice((s) => s.reports[0]);
-  const run = useOffice((s) => s.run);
 
   return (
     <div className="page-enter flex min-h-full flex-col gap-4 p-3 sm:p-4 xl:h-full">
@@ -22,14 +20,8 @@ export default function OfficeOverviewPage() {
       <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="relative h-[60vh] min-h-[380px] xl:h-auto xl:min-h-0">
           <OfficeView className="h-full" />
-          <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-2">
-            <Link
-              href="/analyze"
-              className="glass pointer-events-auto inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-fg hover:border-accent/60"
-            >
-              <Play className="size-3.5 text-accent" />
-              {run?.phase === "running" ? `Menganalisis ${run.request.symbol}…` : "Beri tugas analisis"}
-            </Link>
+          <div className="pointer-events-none absolute inset-x-3 top-3 flex">
+            <AutopilotBar />
           </div>
         </div>
 
@@ -40,7 +32,7 @@ export default function OfficeOverviewPage() {
             <>
               {latest && <FinalSignalCard report={latest} fromOffice />}
               <Panel className="flex min-h-0 flex-1 flex-col">
-                <PanelHeader title="Activity Timeline" subtitle="Event nyata dari workflow agen" />
+                <PanelHeader title="Activity Timeline" subtitle="Event nyata dari workflow agen, termasuk serah-terima antar agen" />
                 <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto p-4">
                   <OfficeActivityFeed limit={40} />
                 </div>

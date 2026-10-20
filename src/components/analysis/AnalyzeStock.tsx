@@ -12,6 +12,7 @@ import { Segmented } from "@/components/ui/Segmented";
 import { useCandles } from "@/hooks/useCandles";
 import { MIN_RR } from "@/lib/agents/risk-manager";
 import type { AnalysisMode, Market, Timeframe } from "@/lib/domain/schemas";
+import { useAutopilotHold } from "@/lib/store/autopilot";
 import { useOffice } from "@/lib/store/office-store";
 import { cn } from "@/lib/utils";
 import { AgentWorkflow } from "./AgentWorkflow";
@@ -47,10 +48,16 @@ export function AnalyzeStock() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const running = run?.phase === "running";
+  // Autopilot work never blocks the CEO: starting a task here pre-empts it.
+  const busy = running && run?.request.origin !== "autopilot";
+  // While the CEO's own run is on screen, the autopilot must not replace it.
+  useAutopilotHold(!!run && run.request.origin !== "autopilot");
   const report = run?.reportId ? reports.find((r) => r.id === run.reportId) : undefined;
-  const chartSymbol = running || report ? (run?.request.symbol ?? null) : symbol.length >= 2 ? symbol : null;
-  const chartTf = running || report ? (run?.request.timeframe ?? timeframe) : timeframe;
-  const chartMarket = running || report ? (run?.request.market ?? market) : market;
+  // The chart follows the CEO's own run; autopilot runs leave it on the typed symbol.
+  const ownRun = busy || (!!report && run?.request.origin !== "autopilot");
+  const chartSymbol = ownRun ? (run?.request.symbol ?? null) : symbol.length >= 2 ? symbol : null;
+  const chartTf = ownRun ? (run?.request.timeframe ?? timeframe) : timeframe;
+  const chartMarket = ownRun ? (run?.request.market ?? market) : market;
   const chart = useCandles(chartSymbol, chartMarket, chartTf, 120);
 
   const start = () => {
@@ -76,7 +83,7 @@ export function AnalyzeStock() {
             <Segmented
               label="Pasar"
               value={market}
-              disabled={running}
+              disabled={busy}
               options={[
                 { value: "IDX", label: "IDX (Indonesia)" },
                 { value: "US", label: "US" },
@@ -96,7 +103,7 @@ export function AnalyzeStock() {
                     .map((w) => (
                       <button
                         key={w.symbol}
-                        disabled={running}
+                        disabled={busy}
                         onClick={() => setSymbol(w.symbol)}
                         className={cn(
                           "rounded-md border px-2 py-1 text-xs font-medium transition-colors",
@@ -109,8 +116,11 @@ export function AnalyzeStock() {
                 </div>
               </div>
             )}
-            <Segmented label="Timeframe" value={timeframe} options={TIMEFRAMES} onChange={setTimeframe} disabled={running} />
-            <Segmented label="Mode analisis (profil risiko)" value={mode} options={MODES} onChange={setMode} disabled={running} />
+            <Segmented label="Timeframe" value={timeframe} options={TIMEFRAMES} onChange={setTimeframe} disabled={busy} />
+            <Segmented label="Mode analisis (profil risiko)" value={mode} options={MODES} onChange={setMode} disabled={busy} />
+            {running && !busy && (
+              <p className="text-[11px] text-accent">Autopilot sedang menganalisis {run?.request.symbol}. Start Analysis akan mendahulukan tugas Anda.</p>
+            )}
             <p className="text-[11px] text-subtle">{MODES.find((m) => m.value === mode)?.hint}. Metode: teknikal berbasis aturan + sentimen berita leksikon (bukan LLM).</p>
 
             {formError && (
@@ -118,9 +128,9 @@ export function AnalyzeStock() {
                 <AlertCircle className="size-3.5" /> {formError}
               </p>
             )}
-            {running ? (
+            {busy ? (
               <Button variant="danger" className="w-full" onClick={cancelAnalysis}>
-                <Square className="size-4" /> Batalkan analisis {run.request.symbol}
+                <Square className="size-4" /> Batalkan analisis {run?.request.symbol}
               </Button>
             ) : (
               <Button variant="primary" className="w-full" onClick={start} disabled={!symbol}>

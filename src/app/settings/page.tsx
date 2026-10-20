@@ -3,6 +3,7 @@
 import { RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { Button, DemoBadge, PageHeader, Panel, PanelHeader } from "@/components/ui/primitives";
+import { PrayerBreakSettings } from "@/components/settings/PrayerBreakSettings";
 import { Segmented } from "@/components/ui/Segmented";
 import { useOffice } from "@/lib/store/office-store";
 
@@ -42,6 +43,8 @@ export default function SettingsPage() {
           <Segmented label="Tampilan kantor" value={settings.view} onChange={(view) => update({ view })} options={[{ value: "auto", label: "Otomatis" }, { value: "3d", label: "3D" }, { value: "2d", label: "2D (hemat)" }]} />
         </div>
       </Panel>
+
+      <PrayerBreakSettings />
 
       <Panel>
         <PanelHeader title="Default analisis & risiko" subtitle="Dipakai Risk Manager untuk menghitung ukuran posisi." />

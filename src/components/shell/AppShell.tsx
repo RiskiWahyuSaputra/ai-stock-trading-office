@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useAutopilot } from "@/lib/store/autopilot";
 import { useOffice } from "@/lib/store/office-store";
+import { usePrayerSchedule } from "@/lib/store/prayer";
 import { Sidebar } from "./Sidebar";
 import { TopNav } from "./TopNav";
 
@@ -12,6 +13,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const checkProvider = useOffice((s) => s.checkProvider);
   useAutopilot();
+  usePrayerSchedule();
 
   useEffect(() => {
     void useOffice.persist.rehydrate();

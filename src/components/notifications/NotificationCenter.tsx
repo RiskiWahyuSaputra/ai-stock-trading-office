@@ -18,6 +18,7 @@ export const KIND_LABEL: Record<NotificationKind, string> = {
   near_entry: "Harga mendekati entry",
   near_sl_tp: "Harga mendekati SL/TP",
   radar_ready: "Kandidat entry ditemukan",
+  prayer_break: "Istirahat jam sholat",
 };
 
 export const URGENCY_TONE: Record<AppNotification["urgency"], string> = {

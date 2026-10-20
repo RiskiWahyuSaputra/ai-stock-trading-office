@@ -14,7 +14,8 @@ import { MIN_RR } from "@/lib/agents/risk-manager";
 import type { AnalysisMode, Market, Timeframe } from "@/lib/domain/schemas";
 import { useAutopilotHold } from "@/lib/store/autopilot";
 import { useOffice } from "@/lib/store/office-store";
-import { cn } from "@/lib/utils";
+import { prayerTitle } from "@/lib/prayer-times";
+import { cn, formatTime } from "@/lib/utils";
 import { AgentWorkflow } from "./AgentWorkflow";
 import { StockSearch } from "./StockSearch";
 
@@ -38,6 +39,10 @@ export function AnalyzeStock() {
   const run = useOffice((s) => s.run);
   const reports = useOffice((s) => s.reports);
   const startAnalysis = useOffice((s) => s.startAnalysis);
+  const requestAnalysis = useOffice((s) => s.requestAnalysis);
+  const prayerBreak = useOffice((s) => s.prayerBreak);
+  const queuedTask = useOffice((s) => s.queuedTask);
+  const clearQueuedTask = useOffice((s) => s.clearQueuedTask);
   const cancelAnalysis = useOffice((s) => s.cancelAnalysis);
 
   const initialMarket = (params.get("market") as Market | null) ?? settings.market;
@@ -67,7 +72,7 @@ export function AnalyzeStock() {
       return;
     }
     setFormError(null);
-    void startAnalysis({ symbol: s, market, timeframe, mode });
+    requestAnalysis({ symbol: s, market, timeframe, mode });
   };
 
   return (
@@ -118,6 +123,25 @@ export function AnalyzeStock() {
             )}
             <Segmented label="Timeframe" value={timeframe} options={TIMEFRAMES} onChange={setTimeframe} disabled={busy} />
             <Segmented label="Mode analisis (profil risiko)" value={mode} options={MODES} onChange={setMode} disabled={busy} />
+            {prayerBreak && (
+              <div className="rounded-lg border border-accent/30 bg-accent/5 p-2.5 text-[11px] text-muted">
+                <p>
+                  Tim sedang istirahat jam {prayerTitle(prayerBreak)} sampai{" "}
+                  <b className="text-fg">{formatTime(prayerBreak.end, undefined, false).slice(0, 5)}</b>. Tugas baru dijadwalkan setelah istirahat.
+                </p>
+                {queuedTask && (
+                  <p className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <span className="text-accent">Dijadwalkan: {queuedTask.symbol} · {queuedTask.timeframe}</span>
+                    <button className="text-fg underline" onClick={() => { clearQueuedTask(); void startAnalysis(queuedTask); }}>
+                      Mulai sekarang
+                    </button>
+                    <button className="text-subtle hover:text-fg" onClick={clearQueuedTask}>
+                      Batalkan
+                    </button>
+                  </p>
+                )}
+              </div>
+            )}
             {running && !busy && (
               <p className="text-[11px] text-accent">Autopilot sedang menganalisis {run?.request.symbol}. Start Analysis akan mendahulukan tugas Anda.</p>
             )}
@@ -134,7 +158,7 @@ export function AnalyzeStock() {
               </Button>
             ) : (
               <Button variant="primary" className="w-full" onClick={start} disabled={!symbol}>
-                <Play className="size-4" /> Start Analysis
+                <Play className="size-4" /> {prayerBreak ? "Jadwalkan setelah istirahat" : "Start Analysis"}
               </Button>
             )}
           </Panel>

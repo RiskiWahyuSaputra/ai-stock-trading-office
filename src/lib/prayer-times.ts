@@ -43,8 +43,6 @@ export const PRAYER_LABEL: Record<PrayerName, string> = {
   isya: "Isya",
 };
 
-export const RAKAAT: Record<PrayerName, number> = { subuh: 2, dzuhur: 4, ashar: 4, maghrib: 3, isya: 4 };
-
 const IHTIYAT_MIN = 2;
 const FAJR_ANGLE = 20;
 const ISHA_ANGLE = 18;
@@ -135,7 +133,6 @@ export interface PrayerBreak {
   name: PrayerName;
   /** Friday Dzuhur is Sholat Jumat (longer break). */
   jumat: boolean;
-  rakaat: number;
   start: number;
   end: number;
 }
@@ -165,7 +162,6 @@ function breaksAround(now: number, city: PrayerCity, minutes: number): PrayerBre
       return {
         name,
         jumat,
-        rakaat: jumat ? 2 : RAKAAT[name],
         start: times[name],
         end: times[name] + (jumat ? JUMAT_MINUTES : minutes) * 60_000,
       };
@@ -174,5 +170,5 @@ function breaksAround(now: number, city: PrayerCity, minutes: number): PrayerBre
 }
 
 export function prayerTitle(b: Pick<PrayerBreak, "name" | "jumat">) {
-  return b.jumat ? "Sholat Jumat" : `Sholat ${PRAYER_LABEL[b.name]}`;
+  return b.jumat ? "Jumat" : PRAYER_LABEL[b.name];
 }

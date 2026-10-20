@@ -627,10 +627,10 @@ export const useOffice = create<OfficeState>()(
           set({ prayerBreak: b });
           if (b) {
             const until = formatTime(b.end, undefined, false).slice(0, 5);
-            log({ runId: `prayer-${b.start}`, agent: null, symbol: "KANTOR", status: "run_started", message: `Waktunya ${prayerTitle(b)} — tim beristirahat ke musholla sampai ${until}.`, at: b.start });
-            get().notify({ at: b.start, symbol: "KANTOR", kind: "prayer_break", summary: `${prayerTitle(b)} (${formatTime(b.start, undefined, false).slice(0, 5)}). Tim istirahat sampai ${until}.`, urgency: "low", isDemo: false });
+            log({ runId: `prayer-${b.start}`, agent: null, symbol: "KANTOR", status: "run_started", message: `Waktu ${prayerTitle(b)} — tim istirahat dulu (ngopi & jalan-jalan) sampai ${until}.`, at: b.start });
+            get().notify({ at: b.start, symbol: "KANTOR", kind: "prayer_break", summary: `Waktu ${prayerTitle(b)} (${formatTime(b.start, undefined, false).slice(0, 5)}). Tim istirahat sampai ${until}.`, urgency: "low", isDemo: false });
           } else if (prev) {
-            log({ runId: `prayer-${prev.start}`, agent: null, symbol: "KANTOR", status: "run_completed", message: `${prayerTitle(prev)} selesai — tim kembali ke meja.`, at: Date.now() });
+            log({ runId: `prayer-${prev.start}`, agent: null, symbol: "KANTOR", status: "run_completed", message: `Istirahat ${prayerTitle(prev)} selesai — tim kembali ke meja.`, at: Date.now() });
             const task = get().queuedTask;
             if (task) {
               set({ queuedTask: null });

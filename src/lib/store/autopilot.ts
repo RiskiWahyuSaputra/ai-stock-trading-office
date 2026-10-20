@@ -5,6 +5,8 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { compareCandidates } from "@/lib/agents/entry-planner";
 import type { Market } from "@/lib/domain/schemas";
 import { marketStatus } from "@/lib/market-hours";
+import { prayerTitle } from "@/lib/prayer-times";
+import { formatTime } from "@/lib/utils";
 import { useOffice } from "./office-store";
 
 /** Radar results older than this are refreshed before the next round. */
@@ -55,8 +57,9 @@ async function runAutopilot(signal: AbortSignal) {
   while (!signal.aborted) {
     const s = store();
     const { market, mode, timeframe } = s.settings;
-    const reason =
-      s.run?.phase === "running"
+    const reason = s.prayerBreak
+      ? `Istirahat jam ${prayerTitle(s.prayerBreak)} sampai ${formatTime(s.prayerBreak.end, undefined, false).slice(0, 5)} — lanjut setelahnya`
+      : s.run?.phase === "running"
         ? `Mendahulukan tugas CEO: ${s.run.request.symbol}`
         : s.screener?.phase === "running"
           ? "Menunggu scan Entry Radar dari CEO selesai"

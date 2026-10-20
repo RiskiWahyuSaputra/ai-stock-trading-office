@@ -18,16 +18,16 @@ describe("prayer times", () => {
 
   it("finds the break in progress and the next one", () => {
     const t = prayerTimes("2026-10-20", jakarta);
-    expect(currentPrayerBreak(t.ashar + 5 * 60_000, jakarta, 15)).toMatchObject({ name: "ashar", rakaat: 4, jumat: false });
+    expect(currentPrayerBreak(t.ashar + 5 * 60_000, jakarta, 15)).toMatchObject({ name: "ashar", jumat: false });
     expect(currentPrayerBreak(t.ashar + 16 * 60_000, jakarta, 15)).toBeNull();
     expect(nextPrayerBreak(t.ashar + 16 * 60_000, jakarta, 15).name).toBe("maghrib");
     // After Isya the next break is tomorrow's Subuh.
     expect(nextPrayerBreak(t.isya + 60 * 60_000, jakarta, 15).name).toBe("subuh");
   });
 
-  it("turns Friday Dzuhur into Sholat Jumat with a longer break", () => {
+  it("gives Friday Dzuhur (Jumat) a longer break", () => {
     const friday = prayerTimes("2026-10-23", jakarta);
     const b = currentPrayerBreak(friday.dzuhur + 30 * 60_000, jakarta, 15);
-    expect(b).toMatchObject({ name: "dzuhur", jumat: true, rakaat: 2 });
+    expect(b).toMatchObject({ name: "dzuhur", jumat: true });
   });
 });

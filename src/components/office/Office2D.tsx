@@ -4,7 +4,8 @@ import { AGENT_ORDER, AGENTS, isWorking } from "@/lib/domain/agents";
 import type { AgentId } from "@/lib/domain/schemas";
 import { useOffice } from "@/lib/store/office-store";
 import { ProgressBar, StatusPill } from "@/components/ui/primitives";
-import { cn } from "@/lib/utils";
+import { prayerTitle } from "@/lib/prayer-times";
+import { cn, formatTime } from "@/lib/utils";
 
 /**
  * 2D fallback floor plan for devices without WebGL (or when the user picks
@@ -21,9 +22,15 @@ export function Office2D({
     s.run?.phase === "running" ? s.activeAgent : null,
   );
   const handoff = useOffice((s) => s.handoff);
+  const prayerBreak = useOffice((s) => s.prayerBreak);
 
   return (
     <div className="grid h-full content-center gap-3 overflow-y-auto bg-[radial-gradient(ellipse_at_top,#0f1a30,transparent_70%)] p-4 sm:grid-cols-2 xl:grid-cols-3">
+      {prayerBreak && (
+        <p className="rounded-lg border border-warn/30 bg-warn/10 px-3 py-2 text-xs text-warn sm:col-span-2 xl:col-span-3">
+          ☕ Tim sedang istirahat jam {prayerTitle(prayerBreak)} di pojok kopi sampai {formatTime(prayerBreak.end, undefined, false).slice(0, 5)}.
+        </p>
+      )}
       {handoff && (
         <p key={handoff.id} className="page-enter rounded-lg border border-line bg-panel-2 px-3 py-2 text-xs text-muted sm:col-span-2 xl:col-span-3">
           <span className="font-semibold" style={{ color: AGENTS[handoff.from].color }}>{AGENTS[handoff.from].name}</span>

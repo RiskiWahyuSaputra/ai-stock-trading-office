@@ -9,6 +9,7 @@ import type { AgentId } from "@/lib/domain/schemas";
 import { useOffice } from "@/lib/store/office-store";
 import { EmployeeCharacter } from "./EmployeeCharacter";
 import { DESKS } from "./layout";
+import { awayFromDesk } from "./presence";
 import { createScreen, type ScreenHandle } from "./screens";
 
 const DESK_TOP = "#2a3550";
@@ -68,6 +69,7 @@ export function EmployeeDesk({
   const ring = useRef<THREE.Mesh>(null);
   const glow = useRef<THREE.PointLight>(null);
   const lastDraw = useRef(0);
+  const seated = useRef<THREE.Group>(null);
   const control = spot.variant === "control";
 
   const screens = useMemo(() => {
@@ -98,6 +100,8 @@ export function EmployeeDesk({
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     const working = isWorking(agent.status);
+    // The standing BreakWalker takes over while the employee is away.
+    if (seated.current) seated.current.visible = !awayFromDesk.has(id);
     // Screens animate at ~6 fps and only while real work is in progress.
     if (working && t - lastDraw.current > 0.16) {
       lastDraw.current = t;
@@ -226,7 +230,9 @@ export function EmployeeDesk({
               roughness={0.3}
             />
           </mesh>
-          <EmployeeCharacter profile={profile} status={agent.status} />
+          <group ref={seated}>
+            <EmployeeCharacter profile={profile} status={agent.status} />
+          </group>
         </group>
       </group>
 

@@ -15,6 +15,9 @@ import { useOfficeCamera } from "./camera-store";
 import { EmployeeDesk } from "./EmployeeDesk";
 import { DEFAULT_VIEW, DESKS, focusView, ROOM } from "./layout";
 import { NameTags } from "./NameTags";
+import { BreakWalker } from "./BreakWalker";
+import { COUNTER_X, LOUNGE_TABLE } from "./break-routine";
+import { liveTagAnchors } from "./presence";
 import { tagAnchor, tagElements } from "./tag-anchors";
 
 function Room() {
@@ -152,6 +155,95 @@ function Room() {
   );
 }
 
+const LOUNGE_VIEW = {
+  position: [LOUNGE_TABLE[0] - 4.2, 4.6, LOUNGE_TABLE[1] + 6.2] as [number, number, number],
+  target: [LOUNGE_TABLE[0] + 0.4, 0.9, LOUNGE_TABLE[1] - 0.2] as [number, number, number],
+};
+
+/** Coffee corner: counter with an espresso machine, mugs and a pendant lamp over the table. */
+function Lounge() {
+  const steam = useRef<THREE.Group>(null);
+  const onBreak = useOffice((s) => !!s.prayerBreak);
+  useFrame(({ clock }) => {
+    if (!steam.current) return;
+    steam.current.visible = onBreak;
+    steam.current.children.forEach((c, i) => {
+      const k = (clock.elapsedTime * 0.5 + i / 3) % 1;
+      c.position.set(Math.sin(k * 6 + i) * 0.03, 0.15 + k * 0.35, 0);
+      c.scale.setScalar(0.5 + k);
+      ((c as THREE.Mesh).material as THREE.MeshBasicMaterial).opacity = 0.35 * (1 - k);
+    });
+  });
+  const [tx, tz] = LOUNGE_TABLE;
+  return (
+    <group>
+      {/* Counter along the right side */}
+      <mesh position={[COUNTER_X, 0.47, -3.75]} castShadow receiveShadow>
+        <boxGeometry args={[0.55, 0.94, 3.0]} />
+        <meshStandardMaterial color="#1f2a42" roughness={0.6} />
+      </mesh>
+      <mesh position={[COUNTER_X, 0.955, -3.75]} receiveShadow>
+        <boxGeometry args={[0.6, 0.03, 3.05]} />
+        <meshStandardMaterial color="#c8b38a" roughness={0.35} />
+      </mesh>
+      <mesh position={[COUNTER_X - 0.28, 0.62, -3.75]}>
+        <boxGeometry args={[0.01, 0.02, 2.9]} />
+        <meshBasicMaterial color="#f59e0b" toneMapped={false} />
+      </mesh>
+      {/* Espresso machine */}
+      <group position={[COUNTER_X + 0.02, 0.97, -4.55]}>
+        <mesh position={[0, 0.2, 0]} castShadow>
+          <boxGeometry args={[0.42, 0.4, 0.5]} />
+          <meshStandardMaterial color="#9aa6b8" metalness={0.7} roughness={0.25} />
+        </mesh>
+        <mesh position={[-0.2, 0.28, 0]}>
+          <boxGeometry args={[0.02, 0.1, 0.3]} />
+          <meshBasicMaterial color="#22d3ee" toneMapped={false} />
+        </mesh>
+        <mesh position={[-0.16, 0.1, 0]}>
+          <cylinderGeometry args={[0.03, 0.03, 0.08, 10]} />
+          <meshStandardMaterial color="#1b2333" metalness={0.6} />
+        </mesh>
+        <group ref={steam} position={[-0.16, 0.05, 0]}>
+          {[0, 1, 2].map((i) => (
+            <mesh key={i}>
+              <sphereGeometry args={[0.035, 8, 6]} />
+              <meshBasicMaterial color="#e6ecf7" transparent opacity={0.3} depthWrite={false} />
+            </mesh>
+          ))}
+        </group>
+      </group>
+      {/* Mugs and a jar */}
+      {[-3.9, -3.75, -3.6].map((z) => (
+        <mesh key={z} position={[COUNTER_X, 1.02, z - 0.1]} castShadow>
+          <cylinderGeometry args={[0.045, 0.04, 0.1, 12]} />
+          <meshStandardMaterial color="#f1f5f9" roughness={0.4} />
+        </mesh>
+      ))}
+      <mesh position={[COUNTER_X, 1.06, -2.7]} castShadow>
+        <cylinderGeometry args={[0.08, 0.08, 0.18, 14]} />
+        <meshStandardMaterial color="#5fb7d9" transparent opacity={0.45} roughness={0.1} />
+      </mesh>
+      {/* Pendant lamp above the table */}
+      <group position={[tx, 3.0, tz]}>
+        <mesh position={[0, 0.6, 0]}>
+          <cylinderGeometry args={[0.006, 0.006, 1.2, 4]} />
+          <meshStandardMaterial color="#0d111a" />
+        </mesh>
+        <mesh>
+          <coneGeometry args={[0.32, 0.28, 24, 1, true]} />
+          <meshStandardMaterial color="#f59e0b" side={THREE.DoubleSide} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, -0.08, 0]}>
+          <sphereGeometry args={[0.08, 12, 10]} />
+          <meshBasicMaterial color="#fff3d6" toneMapped={false} />
+        </mesh>
+        <pointLight position={[0, -0.2, 0]} color="#ffd9a0" intensity={onBreak ? 5 : 2} distance={5} decay={2} />
+      </group>
+    </group>
+  );
+}
+
 const HANDOFF_MS = 1_100;
 
 /**
@@ -198,15 +290,18 @@ function CameraRig() {
   const activeAgent = useOffice((s) =>
     s.run?.phase === "running" ? s.activeAgent : null,
   );
+  const onBreak = useOffice((s) => !!s.prayerBreak && s.run?.phase !== "running");
 
   const target: AgentId | null = focus ?? (followActive ? activeAgent : null);
+  // During the break, "follow" frames the coffee corner where everyone is.
+  const lounge = !focus && followActive && onBreak;
 
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
-    const v = target ? focusView(target) : DEFAULT_VIEW;
+    const v = lounge ? LOUNGE_VIEW : target ? focusView(target) : DEFAULT_VIEW;
     void c.setLookAt(...v.position, ...v.target, true);
-  }, [target, nonce]);
+  }, [target, nonce, lounge]);
 
   return (
     <CameraControls
@@ -236,13 +331,13 @@ function TagProjector() {
     for (const [id, anchor] of anchors) {
       const el = tagElements.get(id);
       if (!el) continue;
-      v.copy(anchor).project(camera);
+      v.copy(liveTagAnchors.get(id) ?? anchor).project(camera);
       const visible = v.z < 1 && Math.abs(v.x) < 1.2 && Math.abs(v.y) < 1.2;
       el.style.visibility = visible ? "visible" : "hidden";
       if (!visible) continue;
       const x = ((v.x + 1) / 2) * size.width;
       const y = ((1 - v.y) / 2) * size.height;
-      const dist = camera.position.distanceTo(anchor);
+      const dist = camera.position.distanceTo(liveTagAnchors.get(id) ?? anchor);
       // Shrink tags on small canvases so they do not bury the characters.
       const fit = THREE.MathUtils.clamp(size.width / 1000, 0.55, 1);
       const scale = THREE.MathUtils.clamp(11 / dist, 0.6, 1) * fit;
@@ -319,6 +414,10 @@ export default function OfficeScene({
         />
         {AGENT_ORDER.map((id) => (
           <EmployeeDesk key={id} id={id} onOpen={onOpenAgent} />
+        ))}
+        <Lounge />
+        {AGENT_ORDER.map((id) => (
+          <BreakWalker key={id} id={id} />
         ))}
         <HandoffPacket />
         <CameraRig />

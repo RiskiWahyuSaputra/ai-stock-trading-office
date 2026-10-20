@@ -31,7 +31,8 @@ function NameTag({
   const p = AGENTS[id];
   const agent = useOffice((s) => s.agents[id]);
   const selected = useOffice((s) => s.selectedAgent === id);
-  const working = isWorking(agent.status);
+  const onBreak = useOffice((s) => !!s.prayerBreak && s.run?.phase !== "running");
+  const working = isWorking(agent.status) && !onBreak;
 
   return (
     <div
@@ -70,15 +71,19 @@ function NameTag({
               style={{ background: p.color }}
             />
           )}
-          <span
-            className="text-[10px] font-medium"
-            style={{ color: STATUS_COLOR(agent.status, working, p.color) }}
-          >
-            {agent.status === "completed" ? "✓ " : ""}
-            {STATUS_LABEL[agent.status]}
-          </span>
+          {onBreak ? (
+            <span className="text-[10px] font-medium text-warn">☕ Istirahat</span>
+          ) : (
+            <span
+              className="text-[10px] font-medium"
+              style={{ color: STATUS_COLOR(agent.status, working, p.color) }}
+            >
+              {agent.status === "completed" ? "✓ " : ""}
+              {STATUS_LABEL[agent.status]}
+            </span>
+          )}
         </div>
-        {(working || agent.status === "queued") && (
+        {!onBreak && (working || agent.status === "queued") && (
           <div className="mt-1 h-1 overflow-hidden rounded-full bg-panel-2">
             <div
               className="h-full rounded-full transition-[width] duration-500"

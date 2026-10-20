@@ -276,6 +276,11 @@ function RadarCard({ item, market }: { item: ScreenItem; market: Market }) {
       </div>
 
       <p className="mt-2 text-sm text-fg">{plan.headline}</p>
+      {item.refreshedAt && (
+        <p className="mt-1 text-[11px] text-accent">
+          Diperbarui {item.refreshedBy === "autopilot" ? "autopilot" : "analisis CEO"} · {formatTime(item.refreshedAt, undefined, false)}
+        </p>
+      )}
 
       <dl className="tabular mt-2 grid grid-cols-3 gap-1.5 text-[11px]">
         <Cell label={TRIGGER_LABEL[plan.trigger]} value={plan.triggerPrice !== null ? formatPrice(plan.triggerPrice, market) : "—"} />

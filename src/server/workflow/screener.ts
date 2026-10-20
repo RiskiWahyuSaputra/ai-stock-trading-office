@@ -1,5 +1,5 @@
 import "server-only";
-import { IMPROVING_SCORE, planEntry } from "@/lib/agents/entry-planner";
+import { IMPROVING_SCORE, toScreenItem } from "@/lib/agents/entry-planner";
 import { buildFinalReport } from "@/lib/agents/final-officer";
 import { runNewsResearch } from "@/lib/agents/news-researcher";
 import { runRiskCheck } from "@/lib/agents/risk-manager";
@@ -83,17 +83,5 @@ async function screenSymbol(symbol: string, quote: Quote | undefined, req: Scree
   const risk = runRiskCheck({ technical, candles: series.candles, quote, mode: req.mode, market: req.market, accountSize: req.accountSize, riskPct: req.riskPct });
   const review = runReview({ news, technical, risk, quote });
   const report = buildFinalReport({ id: crypto.randomUUID(), request, quote, news, technical, risk, review });
-  const plan = planEntry(report, window);
-
-  return {
-    stock: quote.stock,
-    lastPrice: quote.lastPrice,
-    changePct: quote.changePct,
-    status: report.status,
-    direction: technical.direction,
-    trendScore: technical.trendScore,
-    confidence: report.confidence.score,
-    plan,
-    report: plan.timing === "avoid" ? undefined : report,
-  };
+  return toScreenItem(report, window);
 }

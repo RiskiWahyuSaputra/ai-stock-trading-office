@@ -1,5 +1,5 @@
 import { roundToTick } from "@/lib/analysis/risk";
-import type { EntryPlan, EntryTiming, FinalReport } from "@/lib/domain/schemas";
+import type { EntryPlan, EntryTiming, FinalReport, ScreenItem } from "@/lib/domain/schemas";
 import type { EntryWindow } from "@/lib/market-hours";
 
 /** Trend score from which a neutral chart counts as "improving". */
@@ -153,6 +153,22 @@ export function planEntry(report: FinalReport, window: EntryWindow): EntryPlan {
       reasons: [...why, `Resistance terdekat ${res}; jarak ${(dist / atrV).toFixed(1)}×ATR.`],
     });
   }
+}
+
+/** One Entry Radar row from a final report (same shape for scans and later analyses). */
+export function toScreenItem(report: FinalReport, window: EntryWindow): ScreenItem {
+  const plan = planEntry(report, window);
+  return {
+    stock: report.quote.stock,
+    lastPrice: report.quote.lastPrice,
+    changePct: report.quote.changePct,
+    status: report.status,
+    direction: report.technical.direction,
+    trendScore: report.technical.trendScore,
+    confidence: report.confidence.score,
+    plan,
+    report: plan.timing === "avoid" ? undefined : report,
+  };
 }
 
 /** Ranking inside the radar: soonest timing first, then confluence, then main R/R. */

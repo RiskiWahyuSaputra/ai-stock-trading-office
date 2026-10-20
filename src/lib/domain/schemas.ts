@@ -343,6 +343,9 @@ export const ScreenItemSchema = z.object({
   plan: EntryPlanSchema,
   /** Full report, kept only for candidates (not for `avoid`) to stay small. */
   report: FinalReportSchema.optional(),
+  /** Set when a later full analysis (autopilot or CEO) replaced the scan result. */
+  refreshedBy: z.enum(["manual", "autopilot"]).optional(),
+  refreshedAt: z.number().optional(),
 });
 export type ScreenItem = z.infer<typeof ScreenItemSchema>;
 

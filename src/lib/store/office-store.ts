@@ -2,6 +2,8 @@
 
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { toScreenItem } from "@/lib/agents/entry-planner";
+import { entryWindow } from "@/lib/market-hours";
 import { api, streamAnalysis, streamScreener, type ProviderStatus } from "@/lib/api/client";
 import { AGENT_ORDER, AGENTS, isWorking } from "@/lib/domain/agents";
 import type {
@@ -253,6 +255,7 @@ export const useOffice = create<OfficeState>()(
               activeAgent: "officer",
             }));
             log({ runId: event.runId, agent: "officer", symbol, status: "run_completed", message: `Laporan final ${report.status.replace("_", " ")} siap.`, at: event.at });
+            mergeIntoRadar(report);
             notifyForReport(report);
             break;
           }
@@ -263,6 +266,30 @@ export const useOffice = create<OfficeState>()(
               get().notify({ at: event.at, symbol, kind: "analysis_failed", summary: event.error, urgency: "medium", isDemo: false });
             }
             break;
+        }
+      };
+
+      /**
+       * A newer daily analysis of a radar symbol (autopilot or CEO) replaces its
+       * scan row, so a BUY found between scans shows up in the Entry Radar at once.
+       * Only comparable runs merge: same market, daily timeframe, same risk profile.
+       */
+      const mergeIntoRadar = (report: FinalReport) => {
+        const sc = get().screener;
+        const req = report.request;
+        if (!sc || sc.phase === "running" || sc.request.market !== req.market || req.timeframe !== "1D" || sc.request.mode !== req.mode) return;
+        const item: ScreenItem = {
+          ...toScreenItem(report, entryWindow(req.market)),
+          refreshedBy: req.origin ?? "manual",
+          refreshedAt: report.createdAt,
+        };
+        const items = sc.items.some((i) => i.stock.symbol === req.symbol)
+          ? sc.items.map((i) => (i.stock.symbol === req.symbol ? item : i))
+          : [...sc.items, item];
+        set({ screener: { ...sc, items } });
+        const before = sc.items.find((i) => i.stock.symbol === req.symbol)?.plan.timing;
+        if (before !== item.plan.timing) {
+          log({ runId: report.id, agent: "officer", symbol: req.symbol, status: "handoff", message: `→ Entry Radar: ${before ? `${before.replace("_", " ")} → ` : ""}${item.plan.timing.replace("_", " ")}. ${item.plan.headline}`, at: report.createdAt });
         }
       };
 

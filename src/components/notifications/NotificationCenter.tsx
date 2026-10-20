@@ -17,6 +17,7 @@ export const KIND_LABEL: Record<NotificationKind, string> = {
   data_delayed: "Data terlambat / tidak cukup",
   near_entry: "Harga mendekati entry",
   near_sl_tp: "Harga mendekati SL/TP",
+  radar_ready: "Kandidat entry ditemukan",
 };
 
 export const URGENCY_TONE: Record<AppNotification["urgency"], string> = {
@@ -39,6 +40,11 @@ export function NotificationItem({ n, onOpen }: { n: AppNotification; onOpen?: (
         <p className="mt-1 line-clamp-2 text-xs text-muted">{n.summary}</p>
         <div className="mt-1.5 flex items-center gap-3 text-[11px] text-subtle">
           <span title={new Date(n.at).toLocaleString("id-ID")}>{timeAgo(n.at)}</span>
+          {n.kind === "radar_ready" && (
+            <Link href="/radar" className="font-medium text-accent hover:underline" onClick={() => { markRead(n.id); onOpen?.(); }}>
+              Buka Entry Radar
+            </Link>
+          )}
           {n.reportId && (
             <Link
               href={`/signals/${n.reportId}`}

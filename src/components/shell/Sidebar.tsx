@@ -7,6 +7,7 @@ import {
   LineChart,
   ListChecks,
   Newspaper,
+  Radar,
   Search,
   Settings,
   ShieldAlert,
@@ -23,6 +24,7 @@ export const NAV = [
   { href: "/", label: "Office Overview", icon: Building2 },
   { href: "/employees", label: "AI Employees", icon: Users },
   { href: "/analyze", label: "Analyze Stock", icon: Search },
+  { href: "/radar", label: "Entry Radar", icon: Radar },
   { href: "/watchlist", label: "Watchlist", icon: Star },
   { href: "/signals", label: "Final Signals", icon: ListChecks },
   { href: "/history", label: "Analysis History", icon: History },
@@ -79,6 +81,7 @@ function NavList({
   onNavigate: () => void;
 }) {
   const running = useOffice((s) => s.run?.phase === "running");
+  const scanning = useOffice((s) => s.screener?.phase === "running");
   const unread = useOffice(
     (s) => s.notifications.filter((n) => !n.read).length,
   );
@@ -109,6 +112,12 @@ function NavList({
               <span
                 className="size-2 animate-pulse rounded-full bg-accent"
                 aria-label="Analisis berjalan"
+              />
+            )}
+            {href === "/radar" && scanning && (
+              <span
+                className="size-2 animate-pulse rounded-full bg-accent"
+                aria-label="Scan berjalan"
               />
             )}
             {href === "/notifications" && unread > 0 && (

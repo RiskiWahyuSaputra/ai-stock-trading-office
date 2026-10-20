@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { api, streamAnalysis, type ProviderStatus } from "@/lib/api/client";
+import { api, streamAnalysis, streamScreener, type ProviderStatus } from "@/lib/api/client";
 import { AGENT_ORDER, AGENTS, isWorking } from "@/lib/domain/agents";
 import type {
   AgentId,
@@ -11,6 +11,8 @@ import type {
   AnalysisRequest,
   FinalReport,
   Market,
+  ScreenItem,
+  ScreenRequest,
   Timeframe,
   WorkflowEvent,
 } from "@/lib/domain/schemas";
@@ -47,7 +49,8 @@ export type NotificationKind =
   | "scenario_invalid"
   | "data_delayed"
   | "near_entry"
-  | "near_sl_tp";
+  | "near_sl_tp"
+  | "radar_ready";
 
 export interface AppNotification {
   id: string;
@@ -88,6 +91,24 @@ export interface RunState {
   reportId?: string;
 }
 
+export interface ScreenerState {
+  scanId: string | null;
+  request: ScreenRequest;
+  phase: "running" | "completed" | "failed";
+  done: number;
+  total: number;
+  /** Exchange-local trading days the plans refer to. */
+  today: string | null;
+  nextDay: string | null;
+  sessionLabel: string | null;
+  items: ScreenItem[];
+  errors: { symbol: string; error: string }[];
+  error?: string;
+  isDemo: boolean;
+  startedAt: number;
+  finishedAt?: number;
+}
+
 export interface Settings {
   market: Market;
   timezone: string;
@@ -96,6 +117,8 @@ export interface Settings {
   accountSize: Record<Market, number>;
   riskPct: number;
   view: "auto" | "3d" | "2d";
+  /** Entry Radar rescans on its own while its page is open and the market is in session. */
+  autoScan?: boolean;
 }
 
 interface OfficeState {
@@ -108,6 +131,7 @@ interface OfficeState {
   watchlist: WatchItem[];
   notifications: AppNotification[];
   alerts: PriceAlert[];
+  screener: ScreenerState | null;
   settings: Settings;
   provider: { status: ProviderStatus | null; ok: boolean; checkedAt: number | null; error?: string };
 
@@ -124,6 +148,10 @@ interface OfficeState {
   createAlerts: (report: FinalReport) => number;
   removeAlert: (id: string) => void;
   deleteReport: (id: string) => void;
+  startScreener: (req: Pick<ScreenRequest, "market" | "mode" | "symbols">) => Promise<void>;
+  cancelScreener: () => void;
+  /** Store a radar candidate's report with the other final reports; returns its id. */
+  saveScreenReport: (item: ScreenItem) => string | null;
 }
 
 /* ------------------------------------------------------------------ */
@@ -145,6 +173,7 @@ const MIN_VISIBLE_MS = 900;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 let controller: AbortController | null = null;
+let screenController: AbortController | null = null;
 
 const noopStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
 
@@ -195,6 +224,20 @@ export const useOffice = create<OfficeState>()(
         }
       };
 
+      const notifyForScan = () => {
+        const sc = get().screener;
+        if (!sc) return;
+        const list = (t: ScreenItem["plan"]["timing"]) => sc.items.filter((i) => i.plan.timing === t).map((i) => i.stock.symbol);
+        const today = list("today");
+        const next = list("next_session");
+        if (today.length === 0 && next.length === 0) return;
+        const parts = [
+          today.length ? `${today.length} bisa entry hari ini (${today.slice(0, 4).join(", ")})` : "",
+          next.length ? `${next.length} untuk sesi berikutnya (${next.slice(0, 4).join(", ")})` : "",
+        ].filter(Boolean);
+        get().notify({ at: Date.now(), symbol: "RADAR", kind: "radar_ready", summary: `Entry Radar ${sc.request.market}: ${parts.join("; ")}.`, urgency: today.length ? "high" : "medium", isDemo: sc.isDemo });
+      };
+
       const notifyForReport = (r: FinalReport) => {
         const symbol = r.request.symbol;
         const { notify, reports } = get();
@@ -241,6 +284,7 @@ export const useOffice = create<OfficeState>()(
         ],
         notifications: [],
         alerts: [],
+        screener: null,
         settings: {
           market: "IDX",
           timezone: "Asia/Jakarta",
@@ -347,6 +391,73 @@ export const useOffice = create<OfficeState>()(
         },
         removeAlert: (id) => set((s) => ({ alerts: s.alerts.filter((a) => a.id !== id) })),
         deleteReport: (id) => set((s) => ({ reports: s.reports.filter((r) => r.id !== id) })),
+
+        async startScreener(req) {
+          if (get().screener?.phase === "running") return;
+          screenController?.abort();
+          screenController = new AbortController();
+          const { settings } = get();
+          const request: ScreenRequest = { ...req, accountSize: settings.accountSize[req.market], riskPct: settings.riskPct };
+          const patch = (p: Partial<ScreenerState>) => set((s) => ({ screener: s.screener ? { ...s.screener, ...p } : s.screener }));
+          set({
+            screener: {
+              scanId: null,
+              request,
+              phase: "running",
+              done: 0,
+              total: req.symbols?.length ?? 0,
+              today: null,
+              nextDay: null,
+              sessionLabel: null,
+              items: [],
+              errors: [],
+              isDemo: false,
+              startedAt: Date.now(),
+            },
+          });
+          try {
+            for await (const e of streamScreener(request, screenController.signal)) {
+              const cur = get().screener;
+              if (!cur) return;
+              switch (e.type) {
+                case "scan_started":
+                  patch({ scanId: e.scanId, total: e.total, today: e.today, nextDay: e.nextDay, sessionLabel: e.sessionLabel });
+                  break;
+                case "scan_item":
+                  patch({ done: e.done, total: e.total, items: [...cur.items, e.item], isDemo: cur.isDemo || !!e.item.report?.isDemo });
+                  break;
+                case "scan_error":
+                  patch({ done: e.done, total: e.total, errors: [...cur.errors, { symbol: e.symbol, error: e.error }] });
+                  break;
+                case "scan_completed":
+                  patch({ phase: "completed", finishedAt: e.at, isDemo: e.sources.some((x) => x.isDemo) });
+                  notifyForScan();
+                  break;
+                case "scan_failed":
+                  patch({ phase: "failed", error: e.error, finishedAt: e.at });
+                  get().notify({ at: e.at, symbol: "RADAR", kind: "analysis_failed", summary: `Entry Radar gagal: ${e.error}`, urgency: "medium", isDemo: false });
+                  break;
+              }
+            }
+            if (get().screener?.phase === "running") patch({ phase: "failed", error: "Koneksi scan terputus sebelum selesai." });
+          } catch (err) {
+            if ((err as Error).name === "AbortError") return;
+            patch({ phase: "failed", error: (err as Error).message || "Gagal menghubungi server." });
+          }
+        },
+
+        cancelScreener() {
+          screenController?.abort();
+          screenController = null;
+          set((s) => ({ screener: s.screener?.phase === "running" ? { ...s.screener, phase: "failed", error: "Dibatalkan oleh pengguna." } : s.screener }));
+        },
+
+        saveScreenReport(item) {
+          const report = item.report;
+          if (!report) return null;
+          set((s) => ({ reports: [report, ...s.reports.filter((r) => r.id !== report.id)].slice(0, 50) }));
+          return report.id;
+        },
       };
     },
     {
@@ -361,6 +472,7 @@ export const useOffice = create<OfficeState>()(
         watchlist: s.watchlist,
         notifications: s.notifications,
         alerts: s.alerts,
+        screener: s.screener?.phase === "running" ? null : s.screener,
         settings: s.settings,
       }),
     },

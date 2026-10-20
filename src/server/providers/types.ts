@@ -20,6 +20,10 @@ export interface MarketDataProvider {
   /** `market` disambiguates symbols listed on several exchanges. */
   getStock(symbol: string, market?: Market): Promise<StockInfo | null>;
   getQuote(symbol: string, market?: Market): Promise<Quote>;
+  /** Batched quotes for screening; symbols without a quote are left out of the result. */
+  getQuotes(symbols: string[], market: Market): Promise<Quote[]>;
+  /** Listings the Entry Radar scans when no explicit list is given. */
+  listUniverse(market: Market): StockInfo[];
   getCandles(symbol: string, timeframe: Timeframe, limit: number, market?: Market): Promise<CandleSeries>;
 }
 

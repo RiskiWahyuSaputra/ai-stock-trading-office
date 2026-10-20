@@ -286,3 +286,85 @@ export const WorkflowEventSchema = z.discriminatedUnion("type", [
   }),
 ]);
 export type WorkflowEvent = z.infer<typeof WorkflowEventSchema>;
+
+/* ------------------------------------------------------------------ */
+/* Entry Radar (screener)                                               */
+/* ------------------------------------------------------------------ */
+
+/** When a long entry can be taken: this session, the next one, later, or not at all. */
+export const EntryTimingSchema = z.enum(["today", "next_session", "later", "avoid"]);
+export type EntryTiming = z.infer<typeof EntryTimingSchema>;
+
+export const EntryPlanSchema = z.object({
+  timing: EntryTimingSchema,
+  /** What the entry waits for. */
+  trigger: z.enum(["in_zone", "pullback", "breakout", "confirmation", "none"]),
+  /** Exchange-local trading day the plan targets (`YYYY-MM-DD`), null when open-ended. */
+  day: z.string().nullable(),
+  /** Rough trading-day estimate from distance ÷ ATR — not a forecast. */
+  etaDays: z.tuple([z.number().int(), z.number().int()]).nullable(),
+  triggerPrice: z.number().nullable(),
+  headline: z.string(),
+  reasons: z.array(z.string()),
+});
+export type EntryPlan = z.infer<typeof EntryPlanSchema>;
+
+export const ScreenRequestSchema = z.object({
+  market: MarketSchema,
+  mode: AnalysisModeSchema,
+  /** Explicit list (e.g. the watchlist); omitted → the provider's whole universe. */
+  symbols: z
+    .array(z.string().trim().min(1).max(12).transform((s) => s.toUpperCase()))
+    .max(200)
+    .optional(),
+  accountSize: z.number().positive().optional(),
+  riskPct: z.number().positive().max(10).optional(),
+});
+export type ScreenRequest = z.infer<typeof ScreenRequestSchema>;
+
+export const ScreenItemSchema = z.object({
+  stock: StockInfoSchema,
+  lastPrice: z.number().positive(),
+  changePct: z.number(),
+  status: SignalStatusSchema,
+  direction: DirectionSchema,
+  trendScore: z.number(),
+  confidence: z.number(),
+  plan: EntryPlanSchema,
+  /** Full report, kept only for candidates (not for `avoid`) to stay small. */
+  report: FinalReportSchema.optional(),
+});
+export type ScreenItem = z.infer<typeof ScreenItemSchema>;
+
+export const ScreenEventSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("scan_started"),
+    scanId: z.string(),
+    request: ScreenRequestSchema,
+    total: z.number().int(),
+    today: z.string(),
+    nextDay: z.string(),
+    sessionLabel: z.string(),
+    at: z.number(),
+  }),
+  z.object({
+    type: z.literal("scan_item"),
+    scanId: z.string(),
+    done: z.number().int(),
+    total: z.number().int(),
+    item: ScreenItemSchema,
+    at: z.number(),
+  }),
+  z.object({
+    type: z.literal("scan_error"),
+    scanId: z.string(),
+    done: z.number().int(),
+    total: z.number().int(),
+    symbol: z.string(),
+    error: z.string(),
+    at: z.number(),
+  }),
+  z.object({ type: z.literal("scan_completed"), scanId: z.string(), sources: z.array(DataSourceSchema), at: z.number() }),
+  z.object({ type: z.literal("scan_failed"), scanId: z.string(), error: z.string(), at: z.number() }),
+]);
+export type ScreenEvent = z.infer<typeof ScreenEventSchema>;

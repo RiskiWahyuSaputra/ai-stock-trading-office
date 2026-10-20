@@ -4,10 +4,13 @@ import {
   DataSourceSchema,
   NewsReportSchema,
   QuoteSchema,
+  ScreenEventSchema,
   StockInfoSchema,
   WorkflowEventSchema,
   type AnalysisRequest,
   type Market,
+  type ScreenEvent,
+  type ScreenRequest,
   type Timeframe,
   type WorkflowEvent,
 } from "@/lib/domain/schemas";
@@ -60,16 +63,25 @@ export const api = {
 };
 
 /** Start a workflow run and yield validated events as they stream in. */
-export async function* streamAnalysis(req: AnalysisRequest, signal?: AbortSignal): AsyncGenerator<WorkflowEvent> {
-  const res = await fetch("/api/analysis", {
+export function streamAnalysis(req: AnalysisRequest, signal?: AbortSignal): AsyncGenerator<WorkflowEvent> {
+  return streamNdjson("/api/analysis", req, WorkflowEventSchema, signal);
+}
+
+/** Start an Entry Radar scan and yield validated events as they stream in. */
+export function streamScreener(req: ScreenRequest, signal?: AbortSignal): AsyncGenerator<ScreenEvent> {
+  return streamNdjson("/api/screener", req, ScreenEventSchema, signal);
+}
+
+async function* streamNdjson<T>(url: string, body: unknown, schema: z.ZodType<T>, signal?: AbortSignal): AsyncGenerator<T> {
+  const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(req),
+    body: JSON.stringify(body),
     signal,
   });
   if (!res.ok || !res.body) {
-    const body = await res.json().catch(() => ({}));
-    throw new ApiError(body?.error ?? `HTTP ${res.status}`, res.status);
+    const err = await res.json().catch(() => ({}));
+    throw new ApiError(err?.error ?? `HTTP ${res.status}`, res.status);
   }
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
   let buf = "";
@@ -81,7 +93,7 @@ export async function* streamAnalysis(req: AnalysisRequest, signal?: AbortSignal
     while ((nl = buf.indexOf("\n")) >= 0) {
       const line = buf.slice(0, nl).trim();
       buf = buf.slice(nl + 1);
-      if (line) yield WorkflowEventSchema.parse(JSON.parse(line));
+      if (line) yield schema.parse(JSON.parse(line));
     }
   }
 }

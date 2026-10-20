@@ -21,6 +21,7 @@ Tidak ada fallback diam-diam: jika Yahoo atau Google gagal, analisis dihentikan 
 - **Workflow agen yang benar-benar berjalan**: `POST /api/analysis` men-stream event NDJSON di setiap batas tahap. Animasi kantor digerakkan oleh event ini, bukan timer palsu. Signal Reviewer bisa mengembalikan pekerjaan ke Technical Analyst.
 - **Lima karyawan AI**: News Researcher, Technical Analyst, Risk Manager, Signal Reviewer, Final Signal Officer.
 - **Final Signal Report**: BUY SETUP / SELL SETUP / WAIT / NO TRADE, entry zone, SL, TP1–3, R/R, ukuran posisi, skor konfluensi beserta faktornya, kondisi invalidasi, risiko, dan team review. Setiap bagian ditandai sebagai *fakta data*, *hasil perhitungan*, atau *interpretasi agen*. Laporan bisa di-copy dan di-export ke `.md`/`.json`.
+- **Entry Radar** (`/radar`): tim memindai sendiri seluruh direktori saham IDX/US (atau watchlist) dengan candle harian, lalu Entry Planner (`src/lib/agents/entry-planner.ts`) memilah kapan entry beli bisa dilakukan: **hari ini** (setup BUY disetujui, harga di zona, sesi masih berjalan), **sesi berikutnya** (pasar sudah tutup, atau tinggal konfirmasi breakout di close hari ini), **pantau** (menunggu pullback/breakout/konfirmasi, dengan estimasi hari bursa = jarak ÷ ATR14), atau **dihindari**. Berita hanya diambil untuk grafik yang berpotensi menjadi setup beli. Ada opsi scan ulang otomatis tiap 30 menit selama bursa buka dan halaman terbuka. Hanya entry beli yang direncanakan; hari libur bursa tidak dimodelkan.
 - **Halaman lain**: Analyze Stock (autocomplete, timeline progres, chart candlestick), Watchlist, Final Signals, Analysis History, News Center, Risk Management (tabel aturan + kalkulator posisi), Notification Center, Settings.
 
 ## Prinsip keamanan finansial
@@ -49,6 +50,7 @@ src/
   server/
     providers/         # Interface MarketDataProvider/NewsProvider + simulator DEMO
     workflow/engine.ts # Koordinasi agen, streaming event
+    workflow/screener.ts # Entry Radar: scan banyak saham, streaming per saham
 ```
 
 Pemisahan tanggung jawab: pengambilan data pasar, pengambilan berita, analisis, perhitungan risiko, review, laporan final, dan notifikasi berada di modul yang berbeda.

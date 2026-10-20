@@ -75,6 +75,14 @@ export class DemoMarketProvider implements MarketDataProvider {
       source: this.source,
     };
   }
+
+  getQuotes(symbols: string[]): Promise<Quote[]> {
+    return Promise.all(symbols.filter((s) => findDemoStock(s)).map((s) => this.getQuote(s)));
+  }
+
+  listUniverse(market: Market): StockInfo[] {
+    return DEMO_UNIVERSE.filter((s) => s.market === market).map(toInfo);
+  }
 }
 
 function toInfo({ symbol, name, market, sector, currency }: DemoStock): StockInfo {

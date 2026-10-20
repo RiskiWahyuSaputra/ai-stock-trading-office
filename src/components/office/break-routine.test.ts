@@ -16,6 +16,7 @@ import {
   type Vec2,
 } from "./break-routine";
 import { DESKS, ROOM } from "./layout";
+import { PLANTS } from "./OfficeScene";
 
 /** Desk footprint (desk + chair) in its own frame, padded by a body radius. */
 function insideDesk(id: AgentId, [x, z]: Vec2, pad = 0.2) {
@@ -43,6 +44,7 @@ function obstacles(owner: AgentId, p: Vec2) {
   for (const gx of [-3.2, 3.2]) if (Math.abs(p[0] - gx) < 0.85 && Math.abs(p[1] + 1.1) < 0.15) hits.push("glass partition");
   if (Math.abs(p[0]) > ROOM.width / 2 - 0.2 || Math.abs(p[1]) > ROOM.depth / 2 - 0.2) hits.push("wall");
   if (p[0] > 7.25 && p[1] < -2.1 && p[1] > -5.3) hits.push("coffee counter");
+  for (const [x, z] of PLANTS) if (Math.hypot(p[0] - x, p[1] - z) < 0.7) hits.push("plant");
   return hits;
 }
 

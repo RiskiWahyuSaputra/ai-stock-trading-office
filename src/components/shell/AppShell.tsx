@@ -12,8 +12,9 @@ const PROVIDER_POLL_MS = 60_000;
 export function AppShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const checkProvider = useOffice((s) => s.checkProvider);
-  useAutopilot();
+  // Prayer schedule first, so the autopilot sees a break that is already running.
   usePrayerSchedule();
+  useAutopilot();
 
   useEffect(() => {
     void useOffice.persist.rehydrate();

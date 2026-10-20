@@ -20,6 +20,14 @@ import { COUNTER_X, LOUNGE_TABLE } from "./break-routine";
 import { liveTagAnchors } from "./presence";
 import { tagAnchor, tagElements } from "./tag-anchors";
 
+/** Potted plants, kept clear of the break-time aisles and the coffee corner. */
+export const PLANTS: [number, number][] = [
+  [-7, -5],
+  [-7, 4.6],
+  [7.3, 5.3],
+  [-2.9, -5.4],
+];
+
 function Room() {
   const { width: W, depth: D, height: H } = ROOM;
   return (
@@ -122,12 +130,7 @@ function Room() {
       </mesh>
 
       {/* Plants */}
-      {[
-        [-7, -5],
-        [7, -5],
-        [-7, 4.6],
-        [6.8, 4.4],
-      ].map(([x, z]) => (
+      {PLANTS.map(([x, z]) => (
         <group key={`${x}${z}`} position={[x, 0, z]}>
           <mesh position={[0, 0.25, 0]} castShadow>
             <cylinderGeometry args={[0.25, 0.2, 0.5, 14]} />

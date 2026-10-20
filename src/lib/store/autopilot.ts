@@ -59,7 +59,9 @@ async function runAutopilot(signal: AbortSignal) {
     const { market, mode, timeframe } = s.settings;
     const reason = s.prayerBreak
       ? `Istirahat jam ${prayerTitle(s.prayerBreak)} sampai ${formatTime(s.prayerBreak.end, undefined, false).slice(0, 5)} — lanjut setelahnya`
-      : s.run?.phase === "running"
+      : s.returningUntil && Date.now() < s.returningUntil
+        ? "Tim sedang kembali ke meja setelah istirahat"
+        : s.run?.phase === "running"
         ? `Mendahulukan tugas CEO: ${s.run.request.symbol}`
         : s.screener?.phase === "running"
           ? "Menunggu scan Entry Radar dari CEO selesai"

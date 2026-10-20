@@ -21,10 +21,19 @@ const ease = (v: number, target: number, k: number) => v + (target - v) * k;
 /**
  * Stylized seated office character built from primitives so every employee
  * shares one consistent art style; identity comes from color, hair and pose.
- * Faces −Z (toward the desk monitors). Effects (halo, data particles,
- * confetti, alert) only appear for the matching real workflow status.
+ * Faces −Z (toward the desk monitors). Effects (halo, data particles, alert)
+ * follow the real workflow status; the whole team celebrates (hop, arms up,
+ * confetti) only when a new BUY SETUP report arrives (`celebrationId`).
  */
-export function EmployeeCharacter({ profile, status }: { profile: AgentProfile; status: AgentStatus }) {
+export function EmployeeCharacter({
+  profile,
+  status,
+  celebrationId,
+}: {
+  profile: AgentProfile;
+  status: AgentStatus;
+  celebrationId: string | null;
+}) {
   const root = useRef<THREE.Group>(null);
   const torso = useRef<THREE.Group>(null);
   const head = useRef<THREE.Group>(null);
@@ -39,6 +48,8 @@ export function EmployeeCharacter({ profile, status }: { profile: AgentProfile; 
   const mood = useRef<Mood>({ smile: 0.2, brows: 0, talking: false });
   const changedAt = useRef(-100);
   const prev = useRef<AgentStatus>(status);
+  const celebratedAt = useRef(-100);
+  const prevCelebration = useRef(celebrationId);
   const seed = useMemo(() => profile.id.length * 1.7 + profile.name.length, [profile]);
   const pieces = useMemo(
     () =>
@@ -57,11 +68,19 @@ export function EmployeeCharacter({ profile, status }: { profile: AgentProfile; 
     }
   }, [status]);
 
+  useEffect(() => {
+    // Only a new BUY SETUP (not the one already on record at mount) is celebrated.
+    if (celebrationId && celebrationId !== prevCelebration.current) celebratedAt.current = performance.now() / 1000;
+    prevCelebration.current = celebrationId;
+  }, [celebrationId]);
+
   useFrame(({ clock }) => {
     const t = clock.elapsedTime + seed;
-    const since = performance.now() / 1000 - changedAt.current;
+    const nowS = performance.now() / 1000;
+    const since = nowS - changedAt.current;
+    const party = nowS - celebratedAt.current;
     const working = isWorking(status);
-    const celebrating = status === "completed" && since < CELEBRATE_S;
+    const celebrating = party < CELEBRATE_S;
     const troubled = status === "failed" || status === "needs_attention";
     const idle = !working && !celebrating && !troubled;
     if (!root.current || !torso.current || !head.current || !armL.current || !armR.current || !foreL.current || !foreR.current) return;
@@ -73,7 +92,7 @@ export function EmployeeCharacter({ profile, status }: { profile: AgentProfile; 
     // Root: chair swivel when idle, little hop when celebrating, typing bounce when working.
     const swivel = idle ? Math.sin(t * 0.35) * 0.22 : 0;
     root.current.rotation.y = ease(root.current.rotation.y, swivel, 0.05);
-    const hop = celebrating ? Math.abs(Math.sin(since * 9)) * 0.09 * (1 - since / CELEBRATE_S) : 0;
+    const hop = celebrating ? Math.abs(Math.sin(party * 9)) * 0.09 * (1 - party / CELEBRATE_S) : 0;
     const bounce = working ? Math.abs(Math.sin(t * 14)) * 0.008 : 0;
     root.current.position.y = hop + bounce;
 
@@ -101,10 +120,10 @@ export function EmployeeCharacter({ profile, status }: { profile: AgentProfile; 
     } else if (celebrating) {
       upperL = upperR = 2.8;
       lowerL = lowerR = 0.25;
-      sideL = 0.35 - Math.sin(since * 10) * 0.12;
-      sideR = -0.35 + Math.sin(since * 10) * 0.12;
-    } else if (troubled) {
-      // Scratch the back of the head.
+      sideL = 0.35 - Math.sin(party * 10) * 0.12;
+      sideR = -0.35 + Math.sin(party * 10) * 0.12;
+    } else if (troubled && since < 5) {
+      // Scratch the back of the head for a few seconds; the alert mark stays.
       upperR = 2.5;
       lowerR = 2.1 + Math.sin(t * 12) * 0.15;
       sideR = -0.25;
@@ -135,7 +154,7 @@ export function EmployeeCharacter({ profile, status }: { profile: AgentProfile; 
       yaw = Math.sin(t * 2.5) * 0.15;
     } else if (celebrating) {
       pitch = -0.25;
-      yaw = Math.sin(since * 6) * 0.2;
+      yaw = Math.sin(party * 6) * 0.2;
     } else if (stretching) {
       pitch = -0.3;
     } else if (Math.sin(t * 0.23) > 0.85) {
@@ -174,8 +193,8 @@ export function EmployeeCharacter({ profile, status }: { profile: AgentProfile; 
       if (celebrating) {
         confetti.current.children.forEach((c, i) => {
           const p = pieces[i];
-          c.position.set(p.vx * since, 1.9 + p.vy * since - 2.6 * since * since, p.vz * since);
-          c.rotation.set(since * p.spin, since * p.spin * 0.7, 0);
+          c.position.set(p.vx * party, 1.9 + p.vy * party - 2.6 * party * party, p.vz * party);
+          c.rotation.set(party * p.spin, party * p.spin * 0.7, 0);
         });
       }
     }

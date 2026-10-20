@@ -60,6 +60,7 @@ export function EmployeeDesk({
   const profile = AGENTS[id];
   const spot = DESKS[id];
   const agent = useOffice((s) => s.agents[id]);
+  const celebrationId = useOffice((s) => s.celebration?.reportId ?? null);
   const selected = useOffice((s) => s.selectedAgent === id);
   const active = useOffice(
     (s) => s.activeAgent === id && s.run?.phase === "running",
@@ -231,7 +232,7 @@ export function EmployeeDesk({
             />
           </mesh>
           <group ref={seated}>
-            <EmployeeCharacter profile={profile} status={agent.status} />
+            <EmployeeCharacter profile={profile} status={agent.status} celebrationId={celebrationId} />
           </group>
         </group>
       </group>

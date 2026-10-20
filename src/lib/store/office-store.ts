@@ -179,6 +179,10 @@ interface OfficeState {
   prayerBreak: PrayerBreak | null;
   /** A CEO task requested during a prayer break, started when the break ends. */
   queuedTask: AnalysisRequest | null;
+  /** After a break the team walks back to their desks until this time. */
+  returningUntil: number | null;
+  /** The latest BUY SETUP the team produced — the only result they celebrate. */
+  celebration: { reportId: string; symbol: string; at: number } | null;
   settings: Settings;
   provider: { status: ProviderStatus | null; ok: boolean; checkedAt: number | null; error?: string };
 
@@ -222,6 +226,8 @@ const uid = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? cry
  * untouched — this only keeps fast stages visible long enough to follow.
  */
 const MIN_VISIBLE_MS = 900;
+/** Longest walk from the coffee corner back to a desk, plus sitting down. */
+const RETURN_WALK_MS = 20_000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 let controller: AbortController | null = null;
@@ -270,6 +276,7 @@ export const useOffice = create<OfficeState>()(
                 r.request.origin === "autopilot" &&
                 r.request.symbol === report.request.symbol &&
                 r.request.timeframe === report.request.timeframe);
+            if (report.status === "BUY_SETUP") set({ celebration: { reportId: report.id, symbol: report.request.symbol, at: event.at } });
             set((s) => ({
               reports: [report, ...s.reports.filter((r) => !superseded(r))].slice(0, 50),
               run: s.run ? { ...s.run, phase: "completed", reportId: report.id } : s.run,
@@ -436,6 +443,8 @@ export const useOffice = create<OfficeState>()(
         autopilot: { phase: "off", cycle: 0, holds: 0 },
         prayerBreak: null,
         queuedTask: null,
+        returningUntil: null,
+        celebration: null,
         settings: {
           market: "IDX",
           timezone: "Asia/Jakarta",
@@ -630,11 +639,13 @@ export const useOffice = create<OfficeState>()(
             log({ runId: `prayer-${b.start}`, agent: null, symbol: "KANTOR", status: "run_started", message: `Waktu ${prayerTitle(b)} — tim istirahat dulu (ngopi & jalan-jalan) sampai ${until}.`, at: b.start });
             get().notify({ at: b.start, symbol: "KANTOR", kind: "prayer_break", summary: `Waktu ${prayerTitle(b)} (${formatTime(b.start, undefined, false).slice(0, 5)}). Tim istirahat sampai ${until}.`, urgency: "low", isDemo: false });
           } else if (prev) {
+            set({ returningUntil: Date.now() + RETURN_WALK_MS });
             log({ runId: `prayer-${prev.start}`, agent: null, symbol: "KANTOR", status: "run_completed", message: `Istirahat ${prayerTitle(prev)} selesai — tim kembali ke meja.`, at: Date.now() });
             const task = get().queuedTask;
             if (task) {
               set({ queuedTask: null });
-              void get().startAnalysis(task);
+              // Start once everyone is back at their desk.
+              setTimeout(() => void get().startAnalysis(task), RETURN_WALK_MS);
             }
           }
         },

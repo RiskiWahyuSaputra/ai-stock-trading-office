@@ -4,6 +4,8 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { toScreenItem } from "@/lib/agents/entry-planner";
 import { entryWindow } from "@/lib/market-hours";
+import { prayerTitle, type PrayerBreak } from "@/lib/prayer-times";
+import { formatTime } from "@/lib/utils";
 import { api, streamAnalysis, streamScreener, type ProviderStatus } from "@/lib/api/client";
 import { AGENT_ORDER, AGENTS, isWorking } from "@/lib/domain/agents";
 import type {
@@ -52,7 +54,8 @@ export type NotificationKind =
   | "data_delayed"
   | "near_entry"
   | "near_sl_tp"
-  | "radar_ready";
+  | "radar_ready"
+  | "prayer_break";
 
 export interface AppNotification {
   id: string;
@@ -135,6 +138,14 @@ export interface ScreenerState {
   finishedAt?: number;
 }
 
+export interface PrayerSettings {
+  enabled: boolean;
+  cityId: string;
+  minutes: number;
+}
+
+export const DEFAULT_PRAYER: PrayerSettings = { enabled: true, cityId: "jakarta", minutes: 15 };
+
 export interface Settings {
   market: Market;
   timezone: string;
@@ -147,6 +158,8 @@ export interface Settings {
   autoScan?: boolean;
   /** The office works on its own (radar + analyses) while the app is open. Default on. */
   autopilot?: boolean;
+  /** Prayer breaks at the five daily prayer times. Default on, Jakarta, 15 minutes. */
+  prayer?: PrayerSettings;
 }
 
 interface OfficeState {
@@ -162,6 +175,10 @@ interface OfficeState {
   screener: ScreenerState | null;
   handoff: Handoff | null;
   autopilot: AutopilotState;
+  /** The prayer break in progress, if any (set by the prayer schedule). */
+  prayerBreak: PrayerBreak | null;
+  /** A CEO task requested during a prayer break, started when the break ends. */
+  queuedTask: AnalysisRequest | null;
   settings: Settings;
   provider: { status: ProviderStatus | null; ok: boolean; checkedAt: number | null; error?: string };
 
@@ -183,6 +200,10 @@ interface OfficeState {
   /** Store a radar candidate's report with the other final reports; returns its id. */
   saveScreenReport: (item: ScreenItem) => string | null;
   setAutopilot: (p: Partial<AutopilotState>) => void;
+  setPrayerBreak: (b: PrayerBreak | null) => void;
+  /** Run now, or — during a prayer break — queue until the team is back. */
+  requestAnalysis: (req: AnalysisRequest) => void;
+  clearQueuedTask: () => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -413,6 +434,8 @@ export const useOffice = create<OfficeState>()(
         screener: null,
         handoff: null,
         autopilot: { phase: "off", cycle: 0, holds: 0 },
+        prayerBreak: null,
+        queuedTask: null,
         settings: {
           market: "IDX",
           timezone: "Asia/Jakarta",
@@ -597,6 +620,30 @@ export const useOffice = create<OfficeState>()(
         },
 
         setAutopilot: (p) => set((s) => ({ autopilot: { ...s.autopilot, ...p } })),
+
+        setPrayerBreak(b) {
+          const prev = get().prayerBreak;
+          if (prev?.start === b?.start && prev?.name === b?.name) return;
+          set({ prayerBreak: b });
+          if (b) {
+            const until = formatTime(b.end, undefined, false).slice(0, 5);
+            log({ runId: `prayer-${b.start}`, agent: null, symbol: "KANTOR", status: "run_started", message: `Waktunya ${prayerTitle(b)} — tim beristirahat ke musholla sampai ${until}.`, at: b.start });
+            get().notify({ at: b.start, symbol: "KANTOR", kind: "prayer_break", summary: `${prayerTitle(b)} (${formatTime(b.start, undefined, false).slice(0, 5)}). Tim istirahat sampai ${until}.`, urgency: "low", isDemo: false });
+          } else if (prev) {
+            log({ runId: `prayer-${prev.start}`, agent: null, symbol: "KANTOR", status: "run_completed", message: `${prayerTitle(prev)} selesai — tim kembali ke meja.`, at: Date.now() });
+            const task = get().queuedTask;
+            if (task) {
+              set({ queuedTask: null });
+              void get().startAnalysis(task);
+            }
+          }
+        },
+
+        requestAnalysis(req) {
+          if (get().prayerBreak && req.origin !== "autopilot") set({ queuedTask: req });
+          else void get().startAnalysis(req);
+        },
+        clearQueuedTask: () => set({ queuedTask: null }),
 
         saveScreenReport(item) {
           const report = item.report;

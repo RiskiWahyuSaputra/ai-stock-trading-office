@@ -4,6 +4,7 @@ import { RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { Button, DemoBadge, PageHeader, Panel, PanelHeader } from "@/components/ui/primitives";
 import { PrayerBreakSettings } from "@/components/settings/PrayerBreakSettings";
+import { TelegramSettings } from "@/components/settings/TelegramSettings";
 import { Segmented } from "@/components/ui/Segmented";
 import { useOffice } from "@/lib/store/office-store";
 
@@ -45,6 +46,8 @@ export default function SettingsPage() {
       </Panel>
 
       <PrayerBreakSettings />
+
+      <TelegramSettings />
 
       <Panel>
         <PanelHeader title="Default analisis & risiko" subtitle="Dipakai Risk Manager untuk menghitung ukuran posisi." />

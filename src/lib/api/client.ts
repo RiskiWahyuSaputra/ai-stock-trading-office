@@ -8,9 +8,11 @@ import {
   StockInfoSchema,
   WorkflowEventSchema,
   type AnalysisRequest,
+  type FinalReport,
   type Market,
   type ScreenEvent,
   type ScreenRequest,
+  type SignalStatus,
   type Timeframe,
   type WorkflowEvent,
 } from "@/lib/domain/schemas";
@@ -38,6 +40,7 @@ export const ProviderStatusSchema = z.object({
   news: DataSourceSchema,
   supportsLivePrices: z.boolean(),
   llm: z.object({ enabled: z.boolean(), note: z.string() }),
+  telegram: z.object({ enabled: z.boolean() }).default({ enabled: false }),
   serverTime: z.number(),
 });
 export type ProviderStatus = z.infer<typeof ProviderStatusSchema>;
@@ -60,7 +63,17 @@ export const api = {
     ),
   news: (symbol: string, market: Market, signal?: AbortSignal) =>
     getJson(`/api/news?${new URLSearchParams({ symbol, market })}`, NewsReportSchema, signal),
+  telegram: async (body: TelegramMessage) => {
+    const res = await fetch("/api/telegram", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new ApiError(json?.error ?? `HTTP ${res.status}`, res.status);
+  },
 };
+
+export type TelegramMessage =
+  | { type: "test" }
+  | { type: "ticket"; report: FinalReport }
+  | { type: "invalidated"; report: FinalReport; previous: SignalStatus };
 
 /** Start a workflow run and yield validated events as they stream in. */
 export function streamAnalysis(req: AnalysisRequest, signal?: AbortSignal): AsyncGenerator<WorkflowEvent> {

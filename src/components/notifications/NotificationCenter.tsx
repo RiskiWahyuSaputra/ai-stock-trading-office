@@ -19,6 +19,7 @@ export const KIND_LABEL: Record<NotificationKind, string> = {
   near_sl_tp: "Harga mendekati SL/TP",
   radar_ready: "Kandidat entry ditemukan",
   prayer_break: "Istirahat jam sholat",
+  telegram_failed: "Telegram gagal terkirim",
 };
 
 export const URGENCY_TONE: Record<AppNotification["urgency"], string> = {

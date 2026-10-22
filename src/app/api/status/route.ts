@@ -1,5 +1,6 @@
 import { connection } from "next/server";
 import { getMarketProvider, getNewsProvider } from "@/server/providers";
+import { telegramConfigured } from "@/server/telegram";
 
 /** GET /api/status — which data providers are active (no secrets exposed). */
 export async function GET() {
@@ -11,6 +12,7 @@ export async function GET() {
     news: news.source,
     supportsLivePrices: market.supportsLivePrices,
     llm: { enabled: false, note: "Analisis memakai aturan deterministik; integrasi LLM belum dikonfigurasi." },
+    telegram: { enabled: telegramConfigured() },
     serverTime: Date.now(),
   });
 }

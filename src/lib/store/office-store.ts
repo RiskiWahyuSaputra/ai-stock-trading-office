@@ -6,7 +6,7 @@ import { toScreenItem } from "@/lib/agents/entry-planner";
 import { entryWindow } from "@/lib/market-hours";
 import { prayerTitle, type PrayerBreak } from "@/lib/prayer-times";
 import { formatTime } from "@/lib/utils";
-import { api, streamAnalysis, streamScreener, type ProviderStatus } from "@/lib/api/client";
+import { api, streamAnalysis, streamScreener, type ProviderStatus, type TelegramMessage } from "@/lib/api/client";
 import { AGENT_ORDER, AGENTS, isWorking } from "@/lib/domain/agents";
 import type {
   AgentId,
@@ -55,7 +55,8 @@ export type NotificationKind =
   | "near_entry"
   | "near_sl_tp"
   | "radar_ready"
-  | "prayer_break";
+  | "prayer_break"
+  | "telegram_failed";
 
 export interface AppNotification {
   id: string;
@@ -160,6 +161,8 @@ export interface Settings {
   autopilot?: boolean;
   /** Prayer breaks at the five daily prayer times. Default on, Jakarta, 15 minutes. */
   prayer?: PrayerSettings;
+  /** Send BUY/SELL setups as order tickets to Telegram (when the server has a bot configured). Default on. */
+  telegram?: boolean;
 }
 
 interface OfficeState {
@@ -381,6 +384,15 @@ export const useOffice = create<OfficeState>()(
         get().notify({ at: Date.now(), symbol: "RADAR", kind: "radar_ready", summary: `Entry Radar ${sc.request.market}: ${parts.join("; ")}.`, urgency: today.length ? "high" : "medium", isDemo: sc.isDemo });
       };
 
+      /** Order ticket to Telegram; the CEO places the order in their broker app by hand. */
+      const pushTelegram = (msg: TelegramMessage) => {
+        const { provider, settings } = get();
+        if (!provider.status?.telegram.enabled || settings.telegram === false) return;
+        api.telegram(msg).catch((err: Error) => {
+          get().notify({ at: Date.now(), symbol: msg.type === "test" ? "TELEGRAM" : msg.report.request.symbol, kind: "telegram_failed", summary: err.message, urgency: "medium", isDemo: false });
+        });
+      };
+
       const notifyForReport = (r: FinalReport) => {
         const symbol = r.request.symbol;
         const { notify, reports } = get();
@@ -393,9 +405,11 @@ export const useOffice = create<OfficeState>()(
           const actionable = (x?: FinalReport) => x?.status === "BUY_SETUP" || x?.status === "SELL_SETUP";
           if (actionable(r) && prev?.status !== r.status) {
             notify({ at: r.createdAt, symbol, kind: "report_ready", summary: `Autopilot: ${statusText} baru — ${r.request.timeframe}, konfluensi ${r.confidence.score}/100.`, urgency: "high", reportId: r.id, isDemo: r.isDemo });
+            pushTelegram({ type: "ticket", report: r });
           }
           if (prev && actionable(prev) && prev.status !== r.status) {
             notify({ at: r.createdAt, symbol, kind: "scenario_invalid", summary: `Skenario ${prev.status.replace("_", " ")} sebelumnya tidak lagi valid; status terbaru ${statusText}.`, urgency: "high", reportId: r.id, isDemo: r.isDemo });
+            pushTelegram({ type: "invalidated", report: r, previous: prev.status });
           }
           return;
         }
@@ -421,6 +435,7 @@ export const useOffice = create<OfficeState>()(
         // Officer: previous actionable scenario on the same symbol/timeframe no longer holds.
         if (prev && (prev.status === "BUY_SETUP" || prev.status === "SELL_SETUP") && prev.status !== r.status) {
           notify({ at: r.createdAt, symbol, kind: "scenario_invalid", summary: `Skenario ${prev.status.replace("_", " ")} sebelumnya tidak lagi valid; status terbaru ${statusText}.`, urgency: "high", reportId: r.id, isDemo: r.isDemo });
+          pushTelegram({ type: "invalidated", report: r, previous: prev.status });
         }
       };
 

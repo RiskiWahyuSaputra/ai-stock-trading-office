@@ -6,6 +6,7 @@ import {
   ClipboardCopy,
   Download,
   RefreshCw,
+  Send,
   ShieldAlert,
   Star,
 } from "lucide-react";
@@ -56,6 +57,7 @@ export function FinalSignalReport({ report }: { report: FinalReport }) {
   const createAlerts = useOffice((s) => s.createAlerts);
   const notify = useOffice((s) => s.notify);
   const liveFeed = useOffice((s) => s.provider.status?.supportsLivePrices ?? false);
+  const telegram = useOffice((s) => s.provider.status?.telegram.enabled ?? false);
   const [full, setFull] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -85,6 +87,15 @@ export function FinalSignalReport({ report }: { report: FinalReport }) {
   const alert = () => {
     const n = createAlerts(report);
     flash(liveFeed ? `${n} price alert aktif.` : `${n} alert disimpan tetapi TIDAK aktif: belum ada feed harga live (mode DEMO).`);
+  };
+
+  const sendTelegram = async () => {
+    try {
+      await api.telegram({ type: "ticket", report });
+      flash("Order ticket terkirim ke Telegram.");
+    } catch (e) {
+      flash(`Gagal kirim ke Telegram: ${(e as Error).message}`);
+    }
   };
 
   /** On-demand check (not a live alert): is the scenario still valid now? */
@@ -164,6 +175,11 @@ export function FinalSignalReport({ report }: { report: FinalReport }) {
           <Button size="sm" variant="ghost" onClick={() => exportReport("json")}>
             JSON
           </Button>
+          {actionable && telegram && (
+            <Button size="sm" onClick={sendTelegram}>
+              <Send className="size-3.5" /> Kirim ke Telegram
+            </Button>
+          )}
           {actionable && (
             <Button size="sm" variant="ghost" onClick={revalidate} disabled={checking}>
               <RefreshCw className={cn("size-3.5", checking && "animate-spin")} /> Cek validitas sekarang

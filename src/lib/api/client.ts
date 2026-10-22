@@ -40,7 +40,14 @@ export const ProviderStatusSchema = z.object({
   news: DataSourceSchema,
   supportsLivePrices: z.boolean(),
   llm: z.object({ enabled: z.boolean(), note: z.string() }),
-  telegram: z.object({ enabled: z.boolean() }).default({ enabled: false }),
+  telegram: z
+    .object({
+      enabled: z.boolean(),
+      /** Scheduled server scan sends the autopilot tickets; the browser then stays quiet. */
+      server: z.boolean().default(false),
+      lastScan: z.object({ at: z.number(), sent: z.number(), errors: z.number() }).nullable().default(null),
+    })
+    .default({ enabled: false, server: false, lastScan: null }),
   serverTime: z.number(),
 });
 export type ProviderStatus = z.infer<typeof ProviderStatusSchema>;

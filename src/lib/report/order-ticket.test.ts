@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FinalReport } from "@/lib/domain/schemas";
-import { invalidatedText, orderTicketText, splitLots } from "./order-ticket";
+import { invalidatedText, orderTicketText, signalChanges, splitLots } from "./order-ticket";
 
 const report = (patch: Partial<FinalReport> = {}): FinalReport =>
   ({
@@ -59,5 +59,19 @@ describe("invalidatedText", () => {
     const t = invalidatedText(report({ status: "WAIT" }), "BUY_SETUP");
     expect(t).toContain("skenario BUY SETUP batal");
     expect(t).toContain("Batalkan order beli");
+  });
+});
+
+describe("signalChanges", () => {
+  it("sends a ticket only for a new setup", () => {
+    expect(signalChanges(undefined, report())).toEqual(["ticket"]);
+    expect(signalChanges("BUY_SETUP", report())).toEqual([]);
+    expect(signalChanges("WAIT", report())).toEqual(["ticket"]);
+  });
+
+  it("cancels a setup that broke", () => {
+    expect(signalChanges("BUY_SETUP", report({ status: "WAIT" }))).toEqual(["invalidated"]);
+    expect(signalChanges("BUY_SETUP", report({ status: "SELL_SETUP" }))).toEqual(["invalidated", "ticket"]);
+    expect(signalChanges("NO_TRADE", report({ status: "WAIT" }))).toEqual([]);
   });
 });

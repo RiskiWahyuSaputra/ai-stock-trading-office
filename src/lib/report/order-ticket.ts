@@ -86,3 +86,17 @@ export function invalidatedText(r: FinalReport, previous: SignalStatus): string 
     .filter(Boolean)
     .join("\n");
 }
+
+const actionable = (s?: SignalStatus) => s === "BUY_SETUP" || s === "SELL_SETUP";
+
+/**
+ * Which Telegram messages a new report warrants against the last status sent
+ * for that symbol: a ticket for a new setup, a cancellation when one breaks.
+ * Same rule as the autopilot's in-app notifications.
+ */
+export function signalChanges(previous: SignalStatus | undefined, r: FinalReport): ("ticket" | "invalidated")[] {
+  const out: ("ticket" | "invalidated")[] = [];
+  if (actionable(previous) && previous !== r.status) out.push("invalidated");
+  if (actionable(r.status) && previous !== r.status) out.push("ticket");
+  return out;
+}

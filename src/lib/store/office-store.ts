@@ -384,10 +384,14 @@ export const useOffice = create<OfficeState>()(
         get().notify({ at: Date.now(), symbol: "RADAR", kind: "radar_ready", summary: `Entry Radar ${sc.request.market}: ${parts.join("; ")}.`, urgency: today.length ? "high" : "medium", isDemo: sc.isDemo });
       };
 
-      /** Order ticket to Telegram; the CEO places the order in their broker app by hand. */
+      /**
+       * Autopilot order ticket to Telegram; the CEO places the order in their broker app by hand.
+       * When the scheduled server scan is set up it sends these, so the browser stays quiet.
+       */
       const pushTelegram = (msg: TelegramMessage) => {
         const { provider, settings } = get();
-        if (!provider.status?.telegram.enabled || settings.telegram === false) return;
+        const tg = provider.status?.telegram;
+        if (!tg?.enabled || tg.server || settings.telegram === false) return;
         api.telegram(msg).catch((err: Error) => {
           get().notify({ at: Date.now(), symbol: msg.type === "test" ? "TELEGRAM" : msg.report.request.symbol, kind: "telegram_failed", summary: err.message, urgency: "medium", isDemo: false });
         });

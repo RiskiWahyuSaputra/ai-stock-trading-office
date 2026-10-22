@@ -1,4 +1,5 @@
 import "server-only";
+import { kvConfigured } from "./kv";
 
 /**
  * Outgoing Telegram notifications via the Bot API. Token and chat id are read
@@ -9,6 +10,11 @@ const chatId = () => process.env.TELEGRAM_CHAT_ID?.trim() || null;
 
 export function telegramConfigured() {
   return token() !== null && chatId() !== null;
+}
+
+/** The scheduled server scan (`/api/cron/scan`) can run: it then owns the autopilot tickets. */
+export function serverSignalsConfigured() {
+  return telegramConfigured() && !!process.env.CRON_SECRET?.trim() && kvConfigured();
 }
 
 export class TelegramError extends Error {}

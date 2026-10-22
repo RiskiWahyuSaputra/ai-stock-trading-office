@@ -6,10 +6,13 @@ import { Button, Panel, PanelHeader } from "@/components/ui/primitives";
 import { Segmented } from "@/components/ui/Segmented";
 import { api } from "@/lib/api/client";
 import { useOffice } from "@/lib/store/office-store";
+import { timeAgo } from "@/lib/utils";
 
 /** Order tickets to Telegram: semi-automatic trading, the CEO places orders by hand. */
 export function TelegramSettings() {
   const configured = useOffice((s) => s.provider.status?.telegram.enabled ?? false);
+  const server = useOffice((s) => s.provider.status?.telegram.server ?? false);
+  const lastScan = useOffice((s) => s.provider.status?.telegram.lastScan ?? null);
   const enabled = useOffice((s) => s.settings.telegram ?? true);
   const update = useOffice((s) => s.updateSettings);
   const [sending, setSending] = useState(false);
@@ -63,6 +66,20 @@ export function TelegramSettings() {
               Isi <code>TELEGRAM_BOT_TOKEN</code> dan <code>TELEGRAM_CHAT_ID</code> di <code>.env.local</code>, lalu restart <code>npm run dev</code>.
             </li>
           </ol>
+        )}
+        {configured && (
+          <p className="rounded-lg bg-panel-2 px-3 py-2 text-xs text-muted">
+            {server ? (
+              <>
+                <b className="text-fg">Scan server aktif:</b> sinyal dikirim walaupun tab ini ditutup.{" "}
+                {lastScan ? `Scan terakhir ${timeAgo(lastScan.at)}, ${lastScan.sent} pesan terkirim${lastScan.errors ? `, ${lastScan.errors} error` : ""}.` : "Belum ada scan terjadwal yang berjalan."}
+              </>
+            ) : (
+              <>
+                <b className="text-fg">Mode browser:</b> sinyal hanya dikirim selama tab aplikasi terbuka. Untuk scan 24 jam, atur <code>CRON_SECRET</code> dan Upstash Redis (lihat README).
+              </>
+            )}
+          </p>
         )}
         {result && (
           <p role="status" className="rounded-lg bg-panel-2 px-3 py-2 text-xs text-fg">
